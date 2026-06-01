@@ -27,7 +27,6 @@ function getElements() {
     copyBtn: document.getElementById("copyBtn"),
     clearBtn: document.getElementById("clearBtn"),
     generateBtn: document.getElementById("generateBtn"),
-    whatsappBtn: document.getElementById("whatsappBtn"),
     linkUbicacion: document.getElementById("linkUbicacion"),
     pasteLocationBtn: document.getElementById("pasteLocationBtn"),
     saveTemplateBtn: document.getElementById("saveTemplateBtn"),
@@ -95,7 +94,7 @@ function isTextLikeField(field) {
 }
 
 function setupActions(elements) {
-  const { form, output, copyBtn, clearBtn, generateBtn, whatsappBtn, linkUbicacion, pasteLocationBtn, saveTemplateBtn, saveNotification } = elements;
+  const { form, output, copyBtn, clearBtn, generateBtn, linkUbicacion, pasteLocationBtn, saveTemplateBtn, saveNotification } = elements;
 
   generateBtn.addEventListener("click", () => {
     const data = serializeForm(form);
@@ -130,16 +129,6 @@ function setupActions(elements) {
     } catch {
       alert("Error al copiar. Usa Ctrl+C o copialo manualmente.");
     }
-  });
-
-  whatsappBtn.addEventListener("click", () => {
-    if (!output.value) {
-      alert("No hay mensaje para enviar.");
-      return;
-    }
-
-    const encodedMessage = encodeURIComponent(output.value);
-    window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
   });
 
   pasteLocationBtn.addEventListener("click", async () => {
@@ -392,7 +381,20 @@ function setupStarRatings(form) {
 }
 
 function getStarInput(group) {
-  return group.closest(".field")?.querySelector('input[name="estrellas"]') || null;
+  // Buscar primero en el contenedor más cercano (star-card)
+  let container = group.closest(".star-card");
+  if (container) {
+    const input = container.querySelector('input[name="estrellas"]');
+    if (input) return input;
+  }
+  
+  // Si no encuentra, buscar en el field
+  container = group.closest(".field");
+  if (container) {
+    return container.querySelector('input[name="estrellas"]');
+  }
+  
+  return null;
 }
 
 function handleStarPointer(target, group, hiddenInput, form) {
@@ -464,7 +466,7 @@ function buildMessage(values) {
   const formatDate = (date) => {
     if (!date) return "-";
     const [year, month, day] = date.split("-");
-    return year && month && day ? `${Number(day)}/${Number(month)}/${year}` : date;
+    return year && month && day ? `${day}/${month}/${year}` : date;
   };
 
   const formatDateField = (key, fallback = "-") => {
@@ -477,7 +479,7 @@ function buildMessage(values) {
   const equipaje = Array.isArray(values.equipaje) ? values.equipaje.filter(Boolean).map(titleCase).join(" + ") : values.equipaje ? titleCase(values.equipaje) : "-";
 
   const precio = values.precio
-    ? Number(values.precio).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+    ? (Math.round(Number(values.precio) * 100) / 100).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
     : safe("precio", "0");
 
   const escalaIda = Number(values.escala_ida || 0);

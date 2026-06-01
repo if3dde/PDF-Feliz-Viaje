@@ -475,6 +475,12 @@ html[data-theme="dark"] .section-body > .choice-panel {
   outline: none;
 }
 
+/* Estilos para iconos de calendario en inputs date */
+html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
 .counter-input {
   display: flex;
   align-items: center;
@@ -597,7 +603,7 @@ html[data-theme="dark"] .field select {
 }
 
 html[data-theme="dark"] .booking-section .choice-panel .field-label {
-  color: #eef4ff;
+  color: var(--muted);
 }
 
 html[data-theme="dark"] .booking-section .section-title {
@@ -693,6 +699,8 @@ html[data-theme="dark"] .star-card {
 }
 
 .star-rating {
+  display: flex;
+  align-items: center;
   gap: 8px;
   width: fit-content;
   padding: 0;
@@ -711,6 +719,11 @@ html[data-theme="dark"] .star-card {
 .star.active,
 .star.selected {
   color: #f5b800;
+}
+
+html[data-theme="dark"] .star.active,
+html[data-theme="dark"] .star.selected {
+  color: #ffc107;
 }
 
 .form-actions,
