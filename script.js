@@ -28,9 +28,7 @@ function getElements() {
     clearBtn: document.getElementById("clearBtn"),
     generateBtn: document.getElementById("generateBtn"),
     linkUbicacion: document.getElementById("linkUbicacion"),
-    pasteLocationBtn: document.getElementById("pasteLocationBtn"),
-    saveTemplateBtn: document.getElementById("saveTemplateBtn"),
-    saveNotification: document.getElementById("saveNotification")
+    pasteLocationBtn: document.getElementById("pasteLocationBtn")
   };
 }
 
@@ -94,7 +92,7 @@ function isTextLikeField(field) {
 }
 
 function setupActions(elements) {
-  const { form, output, copyBtn, clearBtn, generateBtn, linkUbicacion, pasteLocationBtn, saveTemplateBtn, saveNotification } = elements;
+  const { form, output, copyBtn, clearBtn, generateBtn, linkUbicacion, pasteLocationBtn } = elements;
 
   generateBtn.addEventListener("click", () => {
     const data = serializeForm(form);
@@ -147,18 +145,8 @@ function setupActions(elements) {
     clearStorage();
     resetStars();
     setDefaultQuoteDate(form);
+    document.querySelectorAll("[data-error-for]").forEach((element) => element.remove());
   });
-
-  // Al limpiar todo también removemos mensajes de error en tiempo real
-  clearBtn.addEventListener('click', () => {
-    document.querySelectorAll('[data-error-for]').forEach(el => el.remove());
-  });
-
-  if (saveTemplateBtn) {
-    saveTemplateBtn.addEventListener("click", () => {
-      saveToStorage(serializeForm(form), true, saveNotification);
-    });
-  }
 }
 
 function serializeForm(form) {

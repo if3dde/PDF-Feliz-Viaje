@@ -260,7 +260,14 @@
                   </label>
                   <label class="field" for="precio">
                     <span class="field-label">Precio (por persona)</span>
-                    <input id="precio" name="precio" type="number" step="0.01" placeholder="0.00" />
+                    <input
+                      id="precio"
+                      name="precio"
+                      type="text"
+                      inputmode="decimal"
+                      pattern="[0-9]*[.,]?[0-9]*"
+                      placeholder="0.00"
+                    />
                   </label>
                   <label class="field" for="fecha_cotizacion">
                     <span class="field-label">Fecha de cotización</span>
