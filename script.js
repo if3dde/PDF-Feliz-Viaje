@@ -10,8 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.documentElement.setAttribute("data-theme", "dark");
   restoreForm(form);
   syncStarsFromInput();
-  setDefaultQuoteDate(form);
+  setQuoteDateToToday(form);
   setupAutosave(form);
+  setupTripDateMinimums(form);
   setupFastTab(form);
   setupEscalaCounters(form);
   setupActions(elements);
@@ -144,7 +145,6 @@ function setupActions(elements) {
     output.value = "";
     clearStorage();
     resetStars();
-    setDefaultQuoteDate(form);
     document.querySelectorAll("[data-error-for]").forEach((element) => element.remove());
   });
 }
@@ -231,10 +231,55 @@ function showSaveNotification(notification) {
   showSaveNotification.timeoutId = window.setTimeout(() => (notification.hidden = true), 3000);
 }
 
-function setDefaultQuoteDate(form) {
+function setQuoteDateToToday(form) {
   const quoteDate = form.querySelector('[name="fecha_cotizacion"]');
-  if (!quoteDate || quoteDate.value) return;
-  quoteDate.value = new Date().toISOString().split("T")[0];
+  if (!quoteDate) return;
+  quoteDate.value = formatDateInputValue(new Date());
+}
+
+function formatDateInputValue(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function setupTripDateMinimums(form) {
+  const departureDate = form.querySelector('[name="fecha_salida"]');
+  const flightDepartureDate = form.querySelector('[name="fecha_vuelo_salida"]');
+  const flightReturnDate = form.querySelector('[name="fecha_vuelo_regreso"]');
+  const hotelCheckInDate = form.querySelector('[name="fecha_ingreso"]');
+
+  if (!departureDate) return;
+
+  const isFullDate = (dateStr) => typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+
+  const applyMinDate = (input, minDate) => {
+    if (!input) return;
+
+    input.min = minDate;
+
+    if (minDate && input.value && input.value < minDate) {
+      input.value = "";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  };
+
+  const syncMinimums = () => {
+    const tripMinDate = isFullDate(departureDate.value) ? departureDate.value : "";
+    const returnMinDate = isFullDate(flightDepartureDate?.value) ? flightDepartureDate.value : tripMinDate;
+
+    applyMinDate(flightDepartureDate, tripMinDate);
+    applyMinDate(hotelCheckInDate, tripMinDate);
+    applyMinDate(flightReturnDate, returnMinDate);
+  };
+
+  departureDate.addEventListener("input", syncMinimums);
+  departureDate.addEventListener("change", syncMinimums);
+  flightDepartureDate?.addEventListener("input", syncMinimums);
+  flightDepartureDate?.addEventListener("change", syncMinimums);
+  syncMinimums();
 }
 
 function validateForm(values) {
@@ -264,6 +309,17 @@ function validateForm(values) {
   if (isPast(values.fecha_salida)) errors.push("La fecha de salida no puede ser en el pasado.");
   if (isPast(values.fecha_vuelo_salida)) errors.push("La fecha del vuelo de ida no puede ser en el pasado.");
   if (isPast(values.fecha_vuelo_regreso)) errors.push("La fecha del vuelo de regreso no puede ser en el pasado.");
+  if (isFullDateLocal(values.fecha_salida)) {
+    const followingDates = [
+      ["fecha_vuelo_salida", "La fecha del vuelo de ida no puede ser anterior a la fecha de salida."],
+      ["fecha_vuelo_regreso", "La fecha del vuelo de regreso no puede ser anterior a la fecha de salida."],
+      ["fecha_ingreso", "La fecha de ingreso al hotel no puede ser anterior a la fecha de salida."]
+    ];
+
+    followingDates.forEach(([name, message]) => {
+      if (isFullDateLocal(values[name]) && values[name] < values.fecha_salida) errors.push(message);
+    });
+  }
   if (isFullDateLocal(values.fecha_vuelo_salida) && isFullDateLocal(values.fecha_vuelo_regreso)) {
     const ida = new Date(values.fecha_vuelo_salida);
     const regreso = new Date(values.fecha_vuelo_regreso);
@@ -331,6 +387,15 @@ function setupRealtimeValidation(form) {
     }
   };
 
+  const validateAgainstDeparture = (name, value) => {
+    if (name === 'fecha_salida' || name === 'fecha_cotizacion') return;
+
+    const departureDate = form.querySelector('[name="fecha_salida"]')?.value;
+    if (isFullDate(departureDate) && isFullDate(value) && value < departureDate) {
+      showFieldError(name, 'La fecha no puede ser anterior a la fecha de salida.');
+    }
+  };
+
   fields.forEach((name) => {
     const input = form.querySelector(`[name="${name}"]`);
     if (!input) return;
@@ -344,6 +409,7 @@ function setupRealtimeValidation(form) {
       if (name === 'fecha_vuelo_salida' || name === 'fecha_vuelo_regreso') {
         validatePair();
       }
+      validateAgainstDeparture(name, input.value);
     };
     // mientras escribe: limpiar el error
     input.addEventListener('input', () => clearFieldError(name));
