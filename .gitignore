@@ -1,0 +1,82 @@
+# Dependencias de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+.env.local
+.env.*.local
+
+# IDE y Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PDF generados (opcional, guardarte para debug)
+*.pdf
+output/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+
+# Configuración local
+config.local.py
+settings.local.py
+
+# Base de datos (si la hay)
+*.db
+*.sqlite
+*.sqlite3
+
+# Directorio de templates (opcional)
+# templates/
