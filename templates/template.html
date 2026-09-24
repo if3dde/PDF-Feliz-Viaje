@@ -8,7 +8,7 @@
       @page { 
         size: A4; 
         margin: 0;
-        background-image: url("textura fondo.jpg");
+        background-image: url("amarillo.jpg");
         background-position: center center;
         background-size: 100% 100%;
         background-repeat: no-repeat;
@@ -93,7 +93,7 @@
         content: "";
       }
       .destination { position: relative; z-index: 1; margin: 0; color: var(--ink); font-size: 28pt; font-weight: 800; letter-spacing: -.75px; }
-      .travel-dates { position: relative; z-index: 1; margin: 3px 0 10px; color: var(--orange); font-size: 11pt; font-weight: 800; }
+      .travel-dates { position: relative; z-index: 1; margin: 8px 0 0; color: var(--orange); font-size: 18pt; font-weight: 800; }
       .trip-data {
         position: relative;
         z-index: 1;
@@ -149,11 +149,11 @@
         border-radius: 9px;
       }
       .flight-card:last-of-type { margin-bottom: 11px; }
-      .flight-label { color: var(--blue); font-size: 7.7pt; font-weight: 800; text-transform: uppercase; }
-      .flight-date { float: right; color: var(--blue); font-size: 10pt; font-weight: 800; }
-      .flight-route { clear: both; margin-top: 3px; font-size: 18pt; font-weight: 800; }
+      .flight-label { color: var(--blue); font-size: 11pt; font-weight: 800; text-transform: uppercase; }
+      .flight-date { float: right; color: var(--blue); font-size: 12pt; font-weight: 800; }
+      .flight-route { clear: both; margin-top: 5px; font-size: 21pt; font-weight: 800; }
       .flight-route .plane { padding: 0 7px; color: var(--orange); }
-      .flight-details { margin-top: 8px; color: var(--muted); font-size: 9.5pt; }
+      .flight-details { margin-top: 8px; color: var(--muted); font-size: 11pt; }
       .flight-details strong { color: var(--ink); }
       .services {
         display: grid;
@@ -168,8 +168,8 @@
         border-top: 3px solid var(--orange);
         border-radius: 9px;
       }
-      .service-card strong { display: block; color: var(--navy); font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; }
-      .service-card span { display: block; margin-top: 4px; color: var(--ink); font-size: 10pt; line-height: 1.4; }
+      .service-card strong { display: block; color: var(--navy); font-size: 12pt; text-transform: uppercase; letter-spacing: 0.5px; }
+      .service-card span { display: block; margin-top: 6px; color: var(--ink); font-size: 11pt; line-height: 1.4; }
 
       .card {
         background-color: #ffffff;
@@ -318,11 +318,6 @@
       <section class="trip-hero">
         <h1 class="destination">{{ destino }} Presupuesto</h1>
         <p class="travel-dates">{{ fecha_salida }} | {{ noches }} noches | {{ passengers }} pasajero/s</p>
-        <div class="trip-data">
-          <span class="trip-pill">Cliente: {{ nombre_cliente }}</span>
-          <span class="trip-pill">Cotización: {{ fecha_cotizacion }}</span>
-          <span class="trip-pill">Habitaciones: {{ rooms }}</span>
-        </div>
       </section>
 
       <section class="section">
