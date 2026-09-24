@@ -79,6 +79,7 @@
         border: 1px solid var(--line);
         border-top: 5px solid var(--blue);
         border-radius: 14px;
+        text-align: center;
       }
       .trip-hero::after {
         position: absolute;
@@ -110,6 +111,7 @@
       }
 
       .section { margin: 0 0 16px; }
+      .flight-section { margin-top: 24mm; }
       .section-title {
         display: flex;
         align-items: center;
@@ -126,6 +128,8 @@
         background: #d7dee8;
         content: "";
       }
+      .flight-section-title { display: block; padding: 5px 10px; background: #ffffff; border: 1px solid #000000; font-size: 18pt; text-align: center; }
+      .flight-section-title::after { display: none; }
       .flight-area {
         padding: 13px;
         background: var(--card);
@@ -142,7 +146,7 @@
       }
       .flight-card:last-of-type { margin-bottom: 11px; }
       .flight-label { color: var(--blue); font-size: 11pt; font-weight: 800; text-transform: uppercase; }
-      .flight-date { float: right; color: var(--blue); font-size: 11pt; font-weight: 800; }
+      .flight-date { float: right; color: var(--blue); font-size: 16pt; font-weight: 800; }
       .flight-route { clear: both; margin-top: 5px; font-size: 18pt; font-weight: 800; }
       .flight-route .plane { padding: 0 7px; color: var(--orange); }
       .flight-details { margin-top: 7px; color: var(--muted); font-size: 11pt; }
@@ -258,19 +262,19 @@
         break-inside: avoid;
         page-break-inside: avoid;
       }
-      .finance h2 { margin: 0 0 7px; color: var(--navy); font-size: 18pt; font-weight: 800; letter-spacing: .2px; }
-      .finance h2:nth-of-type(2) { margin-top: 18px; color: var(--blue); font-size: 14pt; }
-      .finance-subtitle { margin: 0 0 12px; color: var(--muted); font-size: 10pt; }
-      .reserve-highlight { margin-bottom: 16px; padding: 12px 15px; color: #41300d; background: #fff9e8; border-left: 5px solid #f5b900; border-radius: 8px; font-size: 10pt; line-height: 1.4; }
+      .finance h2 { margin: 0 0 9px; color: var(--navy); font-size: 23pt; font-weight: 800; letter-spacing: .2px; }
+      .finance h2:nth-of-type(2) { margin-top: 22px; color: var(--blue); font-size: 18pt; }
+      .finance-subtitle { margin: 0 0 15px; color: var(--muted); font-size: 13pt; }
+      .reserve-highlight { margin-bottom: 20px; padding: 16px 18px; color: #41300d; background: #fff9e8; border-left: 6px solid #f5b900; border-radius: 8px; font-size: 13pt; line-height: 1.5; }
       .steps { display: flex; flex-direction: column; gap: 9px; margin: 12px 0 16px; }
       .step { flex: none; min-height: 25mm; padding: 11px 16px; background: var(--soft); border-left: 6px solid var(--orange); border-radius: 8px; }
-      .step-number { display: block; color: var(--orange); font-size: 11pt; font-weight: 800; letter-spacing: .3px; }
-      .step strong { display: block; margin: 4px 0 3px; color: var(--blue); font-size: 11pt; font-weight: 800; }
-      .step p { margin: 0; color: var(--muted); font-size: 9pt; line-height: 1.35; }
-      .bank-data { padding: 11px; background: #eff6ff; border: 1px solid #d5e5fb; border-radius: 8px; }
-      .bank-data h3 { margin: 0 0 5px; color: var(--blue); font-size: 9pt; }
-      .bank-data p { margin: 2px 0; color: #334155; font-size: 7.5pt; }
-      .legal { margin: 12px 0 0; color: var(--muted); font-size: 7.8pt; line-height: 1.4; }
+      .step-number { display: block; color: var(--orange); font-size: 15pt; font-weight: 800; letter-spacing: .3px; }
+      .step strong { display: block; margin: 5px 0 4px; color: var(--blue); font-size: 15pt; font-weight: 800; }
+      .step p { margin: 0; color: var(--muted); font-size: 12pt; line-height: 1.4; }
+      .bank-data { padding: 14px; background: #eff6ff; border: 1px solid #d5e5fb; border-radius: 8px; }
+      .bank-data h3 { margin: 0 0 6px; color: var(--blue); font-size: 12pt; }
+      .bank-data p { margin: 3px 0; color: #334155; font-size: 10pt; }
+      .legal { margin: 16px 0 0; color: var(--muted); font-size: 10pt; line-height: 1.45; }
       .contact { margin: 7px 0 0; color: var(--blue); font-size: 7.1pt; font-weight: 700; text-align: center; }
       .final-banner {
         display: block;
@@ -292,7 +296,7 @@
         <div class="brand-lockup">
           <img class="logo" src="BLACKLOGO BLANCO FV.png" alt="Feliz Viaje" />
         </div>
-        <div class="header-message"><strong>{{ destino }}</strong>Relájate, disfruta tu viaje.<br />Nosotros nos ocupamos.<br /><em>Gracias por confiar en nosotros.</em></div>
+        <div class="header-message"><strong>Franquicia Tribunales, CABA</strong></div>
       </header>
 
       <section class="trip-hero">
@@ -300,8 +304,8 @@
         <p class="travel-dates">{{ fecha_salida }} · {{ noches }} noches · {{ passengers }} pasajero/s</p>
       </section>
 
-      <section class="section">
-        <h2 class="section-title">✈ Aéreo y servicios incluidos</h2>
+      <section class="section flight-section">
+        <h2 class="section-title flight-section-title">OPCIÓN DE AÉREO</h2>
         <div class="flight-area card">
           <article class="flight-card">
             <span class="flight-label">Ida</span><span class="flight-date">{{ fecha_vuelo_salida }}</span>
@@ -315,7 +319,7 @@
           </article>
           <div class="services" style="margin-top: 15px;">
             <div class="service-card card" style="margin-bottom: 0;"><strong>Equipaje</strong><span>{{ equipaje|join(" · ") if equipaje else "Mochila (carry on y valija opcionales)" }}</span></div>
-            <div class="service-card card" style="margin-bottom: 0;"><strong>Traslados</strong><span>{{ traslado }} aeropuerto–hotel–aeropuerto.</span></div>
+            <div class="service-card card" style="margin-bottom: 0;"><strong>Traslados</strong><span>{% if traslado == "Privado" %}Privado: Aeropuerto - Hotel{% else %}{{ traslado }} aeropuerto–hotel–aeropuerto.{% endif %}</span></div>
             <div class="service-card card" style="margin-bottom: 0;"><strong>Asistencia</strong><span>{{ "Incluida" if asistencia in ["sí", "si"] else "Opcional / no incluida" }}</span></div>
           </div>
         </div>
