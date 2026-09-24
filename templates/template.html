@@ -44,8 +44,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: 100px;
-        padding: 20px 25px;
+        min-height: 132px;
+        padding: 22px 28px;
         color: #fff;
         background: var(--navy);
         border: 1px solid #ffffff;
@@ -53,11 +53,12 @@
       }
       .brand-lockup { display: flex; align-items: center; gap: 15px; }
       .logo {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: #fff;
-        object-fit: cover;
+        width: 190px;
+        height: 96px;
+        border-radius: 0;
+        background: transparent;
+        object-fit: contain;
+        object-position: left center;
       }
       .brand-name { display: block; font-size: 24pt; font-weight: 800; letter-spacing: -.7px; }
       .brand-address { display: block; color: #b9e9ff; font-size: 8pt; font-weight: 700; }
@@ -193,24 +194,37 @@
       .hotel-card.card {
         padding: 0;
         margin-bottom: 8px;
-        background: var(--orange-soft);
+        background: #ffffff;
         border: 1px solid #000000;
       }
       .hotel-top { display: flex; min-height: 113px; }
-      .hotel-info { width: 70%; padding: 13px 15px; background: var(--orange-soft); }
+      .hotel-info {
+        width: 68%;
+        padding: 13px 15px;
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
       .hotel-price {
-        width: 30%;
+        width: 32%;
         padding: 13px 14px;
         text-align: right;
-        background: var(--orange-soft);
+        background: #ffffff;
         border-left: 1px solid #dbe4ee;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding-top: 26px;
+        padding-bottom: 18px;
       }
       .hotel-category {
         display: inline-block;
+        align-self: flex-start;
         margin-bottom: 6px;
         padding: 4px 8px;
         color: #b13e12;
-        background: var(--orange-soft);
+        background: #fff5f1;
         border: 1px solid #ffc9b4;
         border-radius: 999px;
         font-size: 8.5pt;
@@ -235,11 +249,13 @@
         font-weight: 800;
         line-height: 1.25;
       }
-      .hotel-bottom { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--orange-soft); border-top: 1px solid var(--line); }
+      .hotel-bottom { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 20px; background: #ffffff; border-top: 1px solid var(--line); }
       .hotel-bottom:empty { display: none; }
       .hotel-description { flex: 1; padding-right: 20px; margin: 0; color: #394a60; font-size: 11pt; }
       .map-link {
-        display: block;
+        display: inline-block;
+        align-self: flex-start;
+        width: fit-content;
         margin-top: 8px;
         padding: 5px 9px;
         color: #198754;
@@ -253,27 +269,38 @@
 
       .finance {
         margin-top: 0;
-        padding: 16px;
-        background: #fff;
-        border: 1px solid #000000;
-        border-radius: 12px;
+        min-height: 158mm;
+        padding: 20px 24px;
+        background: #ffffff;
+        border: 2px solid var(--navy);
+        border-radius: 18px;
         break-inside: avoid;
         page-break-inside: avoid;
       }
-      .finance h2 { margin: 0 0 5px; color: var(--blue); font-size: 14pt; font-weight: 800; }
-      .finance-subtitle { margin: 0 0 10px; color: var(--muted); font-size: 9pt; }
-      .reserve-highlight { margin-bottom: 12px; padding: 11px 13px; color: #41300d; background: #fff9e8; border-left: 4px solid #f5b900; border-radius: 6px; font-size: 9pt; }
-      .steps { display: flex; gap: 12px; margin: 13px 0; }
-      .step { flex: 1; padding: 14px; background: var(--soft); border-radius: 8px; }
-      .step-number { display: block; color: var(--orange); font-size: 9pt; font-weight: 800; }
-      .step strong { display: block; margin: 3px 0; color: var(--blue); font-size: 10pt; font-weight: 800; }
-      .step p { margin: 0; color: var(--muted); font-size: 8pt; }
+      .finance h2 { margin: 0 0 7px; color: var(--navy); font-size: 18pt; font-weight: 800; letter-spacing: .2px; }
+      .finance h2:nth-of-type(2) { margin-top: 18px; color: var(--blue); font-size: 14pt; }
+      .finance-subtitle { margin: 0 0 12px; color: var(--muted); font-size: 10pt; }
+      .reserve-highlight { margin-bottom: 16px; padding: 12px 15px; color: #41300d; background: #fff9e8; border-left: 5px solid #f5b900; border-radius: 8px; font-size: 10pt; line-height: 1.4; }
+      .steps { display: flex; flex-direction: column; gap: 9px; margin: 12px 0 16px; }
+      .step { flex: none; min-height: 25mm; padding: 11px 16px; background: var(--soft); border-left: 6px solid var(--orange); border-radius: 8px; }
+      .step-number { display: block; color: var(--orange); font-size: 11pt; font-weight: 800; letter-spacing: .3px; }
+      .step strong { display: block; margin: 4px 0 3px; color: var(--blue); font-size: 11pt; font-weight: 800; }
+      .step p { margin: 0; color: var(--muted); font-size: 9pt; line-height: 1.35; }
       .bank-data { padding: 11px; background: #eff6ff; border: 1px solid #d5e5fb; border-radius: 8px; }
       .bank-data h3 { margin: 0 0 5px; color: var(--blue); font-size: 9pt; }
       .bank-data p { margin: 2px 0; color: #334155; font-size: 7.5pt; }
-      .legal { margin: 12px 0 0; color: var(--muted); font-size: 7.1pt; line-height: 1.45; }
+      .legal { margin: 12px 0 0; color: var(--muted); font-size: 7.8pt; line-height: 1.4; }
       .contact { margin: 80px 0 0; color: var(--blue); font-size: 11pt; font-weight: 800; text-align: center; }
       .finance-page-gap { break-before: page; height: 35mm; }
+      .final-banner {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        margin-top: 18px;
+        border-radius: 10px;
+        border: 1px solid #000000;
+      }
     </style>
   </head>
   <body>
@@ -283,8 +310,7 @@
     <main class="page">
       <header class="brand-header">
         <div class="brand-lockup">
-          <img class="logo" src="WhatsApp Image 2026-05-22 at 2.51.05 PM.jpeg" alt="" />
-          <div><span class="brand-name">Feliz Viaje</span><span class="brand-address">Tribunales, CABA</span></div>
+          <img class="logo" src="BLACKLOGO BLANCO FV.png" alt="Feliz Viaje" />
         </div>
         <div class="header-message"><strong>{{ destino }}</strong>Relájate, disfruta tu viaje.<br />Nosotros nos ocupamos.<br /><em>Gracias por confiar en nosotros.</em></div>
       </header>
@@ -329,6 +355,7 @@
               {% if hotel.hotel_categoria %}<span class="hotel-category">{{ hotel.hotel_categoria }}</span>{% endif %}
               <h3 class="hotel-name">{{ hotel.hotel_nombre }} <span class="hotel-stars">{% for _ in range(hotel.hotel_estrellas|length) %}★{% endfor %}</span></h3>
               <div class="hotel-meta"><strong>{{ hotel.hotel_regimen }}</strong>{% if hotel.hotel_habitaciones %} · {{ hotel.hotel_habitaciones }} habitación{% if hotel.hotel_habitaciones != "1" %}es{% endif %}{% endif %}</div>
+              {% if hotel.hotel_maps %}<a class="map-link" href="{{ hotel.hotel_maps }}">Ver ubicación en Google Maps</a>{% endif %}
             </div>
             <aside class="hotel-price">
               <div class="price-main">{{ moneda }} {{ money(hotel.hotel_precio) }}</div>
@@ -340,7 +367,6 @@
                   <br />{{ num_cuotas }} cuota/s de {{ moneda }} {{ money(hotel.precio_cuota) }}
                 {% endif %}
               </div>
-              {% if hotel.hotel_maps %}<a class="map-link" href="{{ hotel.hotel_maps }}">Ver ubicación en Google Maps</a>{% endif %}
             </aside>
           </div>
           <div class="hotel-bottom">
@@ -371,8 +397,8 @@
           <div class="step"><span class="step-number">3. EMISIÓN</span><strong>Confirmamos</strong><p>Emitimos aéreo, hotel y servicios; luego enviamos los vouchers.</p></div>
         </div>
         <p class="legal">Cupos limitados. Las tarifas, plazas y disponibilidades pueden modificarse hasta confirmar la reserva. Equipaje, selección de asientos y asistencia al viajero pueden tener costos adicionales según la tarifa contratada.</p>
-        <p class="contact">Feliz Viaje Tribunales - Tucumán 1626</p>
       </section>
+      <img class="final-banner" src="Banner nuevo.JPG" alt="Banner cotizaciones Feliz Viaje" />
     </main>
   </body>
 </html>
