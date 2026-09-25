@@ -1,6 +1,6 @@
 """
 FelizViaje - Backend PDF Generator
-FastAPI + WeasyPrint + Jinja2
+FastAPI + Chromium + Jinja2
 
 Genera PDFs de cotizaciones turísticas de alta calidad.
 Endpoint: POST /api/cotizacion/pdf
@@ -19,7 +19,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import weasyprint
+from playwright.async_api import async_playwright
 
 # ===== CONFIGURACIÓN DE LOGGING =====
 logging.basicConfig(level=logging.INFO)
@@ -157,9 +157,9 @@ def render_template(template_name: str, context: dict) -> str:
         raise
 
 
-def html_to_pdf(html_string: str, filename: str) -> bytes:
+async def html_to_pdf(html_string: str, filename: str) -> bytes:
     """
-    Convierte HTML a PDF usando WeasyPrint.
+    Convierte HTML a PDF usando Chromium headless.
     
     Args:
         html_string: HTML como string
@@ -171,11 +171,34 @@ def html_to_pdf(html_string: str, filename: str) -> bytes:
     try:
         logger.info(f"Generando PDF: {filename}")
         
-        # Crear documento HTML desde string
-        html_doc = weasyprint.HTML(string=html_string, base_url=str(BASE_DIR))
-        
-        # Generar PDF en memoria
-        pdf_bytes = html_doc.write_pdf()
+        # Chromium reproduce el layout del navegador con mayor fidelidad que WeasyPrint.
+        base_url = BASE_DIR.as_uri() + "/"
+        html_with_base = html_string.replace(
+            "<head>",
+            f'<head><base href="{base_url}">',
+            1,
+        )
+        launch_options = {
+            "headless": True,
+            "args": ["--no-sandbox", "--disable-dev-shm-usage"],
+        }
+        chromium_path = os.getenv("CHROMIUM_PATH")
+        if chromium_path:
+            launch_options["executable_path"] = chromium_path
+
+        async with async_playwright() as playwright:
+            browser = await playwright.chromium.launch(**launch_options)
+            try:
+                page = await browser.new_page()
+                await page.set_content(html_with_base, wait_until="load")
+                await page.emulate_media(media="print")
+                pdf_bytes = await page.pdf(
+                    format="A4",
+                    print_background=True,
+                    prefer_css_page_size=True,
+                )
+            finally:
+                await browser.close()
         
         logger.info(f"PDF generado exitosamente: {filename} ({len(pdf_bytes)} bytes)")
         return pdf_bytes
@@ -397,7 +420,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
         logger.info("Template renderizado. Generando PDF...")
         
         # Convertir HTML a PDF
-        pdf_bytes = html_to_pdf(html_content, data.nombre_cliente)
+        pdf_bytes = await html_to_pdf(html_content, data.nombre_cliente)
         
         # Generar nombre de archivo seguro
         sanitized_name = sanitize_filename(data.nombre_cliente)

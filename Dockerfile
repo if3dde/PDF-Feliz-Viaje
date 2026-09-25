@@ -12,6 +12,8 @@ RUN apt-get update \
         libpangoft2-1.0-0 \
         shared-mime-info \
         fonts-dejavu \
+        fonts-liberation \
+        chromium \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -22,4 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 10000
+ENV CHROMIUM_PATH=/usr/bin/chromium
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}"]

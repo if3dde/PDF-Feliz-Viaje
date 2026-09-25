@@ -162,7 +162,7 @@ En `main.py` el backend usa:
 
 - `CORSMiddleware` para habilitar CORS.
 - `Jinja2` para renderizar la plantilla HTML.
-- `WeasyPrint` para convertir HTML a PDF.
+- `Playwright` y Chromium para convertir HTML a PDF.
 - `Pydantic` para validar el payload recibido.
 
 > Por defecto, CORS está habilitado para todos los orígenes. En producción es recomendable restringirlos a dominios reales.
@@ -210,7 +210,7 @@ uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 
 ### Render
 
-El proyecto incluye un `Dockerfile` para instalar las librerías nativas que necesita WeasyPrint. En Render crea un **Web Service** conectado al repositorio y selecciona **Docker** como entorno. Render detectará el `Dockerfile` y expondrá la aplicación en el puerto asignado mediante `PORT`.
+El proyecto incluye un `Dockerfile` para instalar Chromium y las librerías necesarias. En Render crea un **Web Service** conectado al repositorio y selecciona **Docker** como entorno. Render detectará el `Dockerfile` y expondrá la aplicación en el puerto asignado mediante `PORT`.
 
 La interfaz y la API se sirven desde el mismo servicio. Al abrir la URL pública de Render se cargará `index.html`, y el frontend usará automáticamente `/api/cotizacion/pdf` sin apuntar a `localhost`.
 
