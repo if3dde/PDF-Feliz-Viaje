@@ -111,7 +111,8 @@ function setupActions(elements) {
       window.setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
       console.error("Error al generar PDF:", error);
-      alert("No se pudo generar el PDF.\n" + error.message + "\n\nVerificá que el backend esté activo en http://localhost:8000.");
+      const backendAddress = window.location.protocol === "file:" ? "http://localhost:8000" : window.location.origin;
+      alert("No se pudo generar el PDF.\n" + error.message + "\n\nVerificá el backend en " + backendAddress + ".");
     } finally {
       generateBtn.disabled = false;
       generateBtn.textContent = "Generar PDF de Cotización";
