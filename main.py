@@ -15,7 +15,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -428,24 +428,30 @@ async def generar_cotizacion_pdf(data: CotizacionData):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """Manejador personalizado para HTTPException"""
-    return {
-        "error": True,
-        "status_code": exc.status_code,
-        "detail": exc.detail,
-        "timestamp": datetime.now().isoformat()
-    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": True,
+            "status_code": exc.status_code,
+            "detail": exc.detail,
+            "timestamp": datetime.now().isoformat()
+        }
+    )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     """Manejador para excepciones no controladas"""
     logger.error(f"Excepción no controlada: {str(exc)}", exc_info=True)
-    return {
-        "error": True,
-        "status_code": 500,
-        "detail": "Error interno del servidor",
-        "timestamp": datetime.now().isoformat()
-    }
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": True,
+            "status_code": 500,
+            "detail": "Error interno del servidor",
+            "timestamp": datetime.now().isoformat()
+        }
+    )
 
 
 # ===== LIFESPAN =====
