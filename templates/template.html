@@ -71,6 +71,7 @@
         text-align: right;
       }
       .header-message strong { display: block; color: #fff; font-size: 12pt; }
+      .header-message .client-name { display: block; margin-top: 3px; color: #b9e9ff; font-size: 9pt; font-weight: 600; }
       .header-message em { color: #ffb28d; font-style: normal; }
 
       .trip-hero {
@@ -314,7 +315,7 @@
         <div class="brand-lockup">
           <img class="logo" src="assets/BLACKLOGO BLANCO FV.png" alt="Feliz Viaje" />
         </div>
-        <div class="header-message"><strong>Franquicia Tribunales, CABA</strong></div>
+        <div class="header-message"><strong>Franquicia Tribunales, CABA</strong><span class="client-name">Cliente : {{ nombre_cliente }}</span></div>
       </header>
 
       <section class="trip-hero">
@@ -328,12 +329,12 @@
           <article class="flight-card">
             <span class="flight-label">Ida</span><span class="flight-date">{{ fecha_vuelo_salida }}</span>
             <div class="flight-route">{{ aeropuerto_origen }} <span class="plane">✈</span> {{ aeropuerto_destino }}</div>
-            <div class="flight-details"><strong>{{ hora_salida_ida }} → {{ hora_llegada_ida }}</strong> · Duración a confirmar · {{ "Directo" if escala_ida == "0" else escala_ida ~ " escala/s" }} · {{ numero_vuelo_ida }}</div>
+            <div class="flight-details">{% if hora_salida_ida != "TBD" or hora_llegada_ida != "TBD" %}<strong>{{ hora_salida_ida }} → {{ hora_llegada_ida }}</strong> · {% endif %}{{ "Directo" if escala_ida == "0" else escala_ida ~ " escala/s" }}{% if numero_vuelo_ida %} · {{ numero_vuelo_ida }}{% endif %}</div>
           </article>
           <article class="flight-card">
             <span class="flight-label">Vuelta</span><span class="flight-date">{{ fecha_vuelo_regreso }}</span>
             <div class="flight-route">{{ aeropuerto_origen_regreso }} <span class="plane">✈</span> {{ aeropuerto_destino_regreso }}</div>
-            <div class="flight-details"><strong>{{ hora_salida_regreso }} → {{ hora_llegada_regreso }}</strong> · Duración a confirmar · {{ "Directo" if escala_vuelta == "0" else escala_vuelta ~ " escala/s" }} · {{ numero_vuelo_regreso }}</div>
+            <div class="flight-details">{% if hora_salida_regreso != "TBD" or hora_llegada_regreso != "TBD" %}<strong>{{ hora_salida_regreso }} → {{ hora_llegada_regreso }}</strong> · {% endif %}{{ "Directo" if escala_vuelta == "0" else escala_vuelta ~ " escala/s" }}{% if numero_vuelo_regreso %} · {{ numero_vuelo_regreso }}{% endif %}</div>
           </article>
           <div class="services" style="margin-top: 15px;">
             <div class="service-card card" style="margin-bottom: 0;"><strong>Equipaje</strong><span>{{ equipaje|join(" · ") if equipaje else "Mochila (carry on y valija opcionales)" }}</span></div>
@@ -357,13 +358,13 @@
             <aside class="hotel-price">
               <div class="price-main">{{ moneda }} {{ money(hotel.hotel_precio) }}</div>
               <div class="price-caption">por persona · {{ passengers }} pasajero/s</div>
-              <div class="price-total">Total: <strong>{{ moneda }} {{ money(hotel.precio_total) }}</strong></div>
-              <div class="payment-box">
-                Reserva {{ moneda }} {{ money(hotel.precio_reserva) }}
-                {% if financiacion_activa %}
+              {% if financiacion_activa %}
+                <div class="price-total">Total Paquete: <strong>{{ moneda }} {{ money(hotel.precio_total) }}</strong></div>
+                <div class="payment-box">
+                  Reserva {{ moneda }} {{ money(hotel.precio_reserva) }}
                   <br />{{ num_cuotas }} cuota/s de {{ moneda }} {{ money(hotel.precio_cuota) }}
-                {% endif %}
-              </div>
+                </div>
+              {% endif %}
             </aside>
           </div>
           <div class="hotel-bottom">
@@ -381,9 +382,9 @@
         <div class="reserve-highlight">
           {% if first %}
             {% if financiacion_activa %}
-              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong> (monto del vuelo). Saldo restante en {{ num_cuotas }} cuota/s al mes de <strong>{{ moneda }} {{ money(first.precio_cuota) }}</strong> hasta 30 días antes del viaje (límite {{ limite_pago }}).
+              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong>. Saldo restante en {{ num_cuotas }} cuota/s al mes de <strong>{{ moneda }} {{ money(first.precio_cuota) }}</strong> hasta 30 días antes del viaje (límite {{ limite_pago }}).
             {% else %}
-              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong> (monto del vuelo).
+              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong>.
             {% endif %}
           {% endif %}
         </div>

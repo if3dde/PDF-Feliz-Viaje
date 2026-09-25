@@ -184,17 +184,17 @@ def sanitize_filename(text: str) -> str:
 
 def format_date_to_dmy(date_str: Optional[str]) -> str:
     """
-    Convierte una fecha en formato YYYY-MM-DD a DD-MM-YYYY.
+    Convierte una fecha en formato YYYY-MM-DD a DD/MM/YYYY.
     Si la fecha es nula, vacía o inválida, devuelve un valor por defecto o la misma cadena.
     """
     if not date_str:
         return "No especificado"
     try:
-        # Si ya viene en formato DD-MM-YYYY, devolverla tal cual
-        if len(date_str) == 10 and date_str[2] == '-' and date_str[5] == '-':
-            return date_str
+        if len(date_str) == 10 and date_str[2] in '-/' and date_str[5] == date_str[2]:
+            input_format = "%d-%m-%Y" if date_str[2] == '-' else "%d/%m/%Y"
+            return datetime.strptime(date_str, input_format).strftime("%d/%m/%Y")
         dt = datetime.strptime(date_str, "%Y-%m-%d")
-        return dt.strftime("%d-%m-%Y")
+        return dt.strftime("%d/%m/%Y")
     except Exception:
         return date_str
 
@@ -280,7 +280,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             if months_diff >= 3:
                 financiacion_activa = True
                 dt_limite = dt_salida - timedelta(days=30)
-                fecha_limite_str = dt_limite.strftime("%d-%m-%Y")
+                fecha_limite_str = dt_limite.strftime("%d/%m/%Y")
                 
                 def add_months(sourcedate, months):
                     month = sourcedate.month - 1 + months
@@ -341,7 +341,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             "noches": data.noches or "0",
             "pasajeros": passengers,
             "aerolinea_ida": data.aerolinea_ida or "No especificado",
-            "numero_vuelo_ida": data.numero_vuelo_ida or "N/A",
+            "numero_vuelo_ida": data.numero_vuelo_ida or "",
             "fecha_vuelo_salida": format_date_to_dmy(data.fecha_vuelo_salida),
             "aeropuerto_origen": data.aeropuerto_origen or "---",
             "hora_salida_ida": data.hora_salida_ida or "TBD",
@@ -350,7 +350,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             "escala_ida": data.escala_ida or "0",
             "equipaje": data.equipaje or [],
             "aerolinea_regreso": data.aerolinea_regreso or "No especificado",
-            "numero_vuelo_regreso": data.numero_vuelo_regreso or "N/A",
+            "numero_vuelo_regreso": data.numero_vuelo_regreso or "",
             "fecha_vuelo_regreso": format_date_to_dmy(data.fecha_vuelo_regreso),
             "aeropuerto_origen_regreso": data.aeropuerto_origen_regreso or "---",
             "hora_salida_regreso": data.hora_salida_regreso or "TBD",
@@ -360,7 +360,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             "traslado": data.traslado or "No especificado",
             "hoteles": hoteles_context,
             "moneda": data.moneda or "USD",
-            "fecha_cotizacion": format_date_to_dmy(data.fecha_cotizacion) if data.fecha_cotizacion else datetime.now().strftime("%d-%m-%Y"),
+            "fecha_cotizacion": format_date_to_dmy(data.fecha_cotizacion) if data.fecha_cotizacion else datetime.now().strftime("%d/%m/%Y"),
             "asistencia": data.asistencia or "no",
             "validez_oferta": data.validez_oferta or "7",
             "texto_adicional": data.texto_adicional or "",
