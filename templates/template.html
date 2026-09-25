@@ -230,7 +230,8 @@
         background: #fff5f1;
         border: 1px solid #ffc9b4;
         border-radius: 999px;
-        font-size: 7.2pt;
+        font-size: 10pt;
+        line-height: 1.2;
         font-weight: 800;
         text-transform: uppercase;
       }
@@ -382,7 +383,7 @@
         <div class="reserve-highlight">
           {% if first %}
             {% if financiacion_activa %}
-              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong>. Saldo restante en {{ num_cuotas }} cuota/s al mes de <strong>{{ moneda }} {{ money(first.precio_cuota) }}</strong> hasta 30 días antes del viaje (límite {{ limite_pago }}).
+              Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong>. Saldo restante en {{ num_cuotas }} {{ "cuota" if num_cuotas == 1 else "cuotas" }} al mes hasta 30 días antes del viaje (límite {{ limite_pago }}).
             {% else %}
               Reserva hoy con <strong>{{ moneda }} {{ money(first.precio_reserva) }}</strong>.
             {% endif %}

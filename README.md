@@ -1,6 +1,6 @@
 # FelizViaje
 
-Sistema para generar cotizaciones turísticas en formato PDF a partir de datos del cliente y opciones de hotel, usando FastAPI, Jinja2 y WeasyPrint.
+Sistema para generar cotizaciones turísticas en formato PDF a partir de los datos del cliente, vuelos y opciones de hotel, usando FastAPI, Jinja2, Playwright y Chromium.
 
 ## Descripción general
 
@@ -10,7 +10,7 @@ Este proyecto combina un backend en Python con un frontend simple para completar
 2. El frontend envía un JSON al backend.
 3. El servidor valida los datos.
 4. La plantilla HTML se renderiza con Jinja2.
-5. WeasyPrint convierte el HTML a PDF.
+5. Chromium, controlado por Playwright, convierte el HTML a PDF.
 6. El archivo se devuelve para descarga.
 
 ## Stack principal
@@ -19,7 +19,8 @@ Este proyecto combina un backend en Python con un frontend simple para completar
 - FastAPI
 - Pydantic
 - Jinja2
-- WeasyPrint
+- Playwright 1.48+
+- Chromium
 - HTML + CSS + JavaScript
 
 ## Estructura del proyecto
@@ -30,12 +31,12 @@ FelizViaje/
 ├── template.html           # Plantilla HTML base
 ├── requirements.txt        # Dependencias del proyecto
 ├── README.md               # Documentación del proyecto
-├── QUICK_START.md          # Guía rápida
 ├── index.html              # Frontend de prueba o demo
 ├── script.js               # Lógica del formulario
 ├── style.css               # Estilos del frontend
+├── assets/                 # Logos, banners y recursos visuales
 ├── templates/
-│   └── template.html       # Copia que usa el backend
+│   └── template.html       # Plantilla que usa el backend
 ├── .gitignore
 └── .venv/                  # Entorno virtual local (si aplica)
 ```
@@ -44,13 +45,12 @@ FelizViaje/
 
 - Python 3.10 o superior
 - pip
-- Dependencias del sistema para WeasyPrint en Linux/macOS
+- Chromium instalado y disponible para Playwright
 
-### Dependencias de sistema para Linux
+En Render, Chromium se instala automáticamente mediante el `Dockerfile`. En un entorno local, después de instalar las dependencias Python, instala el navegador con:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y python3-dev libcairo2-dev libpango-1.0-0 libpango-cairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev libssl-dev
+playwright install chromium
 ```
 
 ## Instalación
@@ -63,7 +63,13 @@ sudo apt-get install -y python3-dev libcairo2-dev libpango-1.0-0 libpango-cairo-
 pip install -r requirements.txt
 ```
 
-4. Asegúrate de que exista la carpeta `templates` y que el archivo `template.html` esté dentro de ella:
+4. Instala Chromium para Playwright si todavía no está instalado:
+
+```bash
+playwright install chromium
+```
+
+5. Asegúrate de que exista la carpeta `templates` y que el archivo `template.html` esté dentro de ella:
 
 ```bash
 mkdir -p templates
@@ -99,7 +105,7 @@ El backend quedará disponible en:
 
 ## Endpoint principal
 
-### POST /api/cotizacion/pdf
+### `POST /api/cotizacion/pdf`
 
 Genera un PDF de cotización a partir de un payload JSON.
 
@@ -130,7 +136,7 @@ Ejemplo de request:
 }
 ```
 
-El servidor responderá con el PDF generado para descarga.
+El servidor responderá con el PDF generado para descarga. El backend calcula automáticamente el total del paquete, la reserva y la financiación cuando el viaje permite cuotas. La cantidad se muestra como `1 cuota` o `N cuotas` según corresponda.
 
 ## Prueba rápida con curl
 
@@ -151,7 +157,7 @@ curl -X POST "http://localhost:8000/api/cotizacion/pdf" \
 ## Uso con el frontend
 
 1. Levanta el backend.
-2. Abre `index.html` en tu navegador o usa Live Server.
+2. Abre `http://localhost:8000` en el navegador. El backend sirve el frontend y sus recursos, por lo que no es necesario usar Live Server.
 3. Completa los datos de la cotización.
 4. Haz clic en el botón para generar el PDF.
 5. El archivo se descargará automáticamente.
@@ -162,8 +168,11 @@ En `main.py` el backend usa:
 
 - `CORSMiddleware` para habilitar CORS.
 - `Jinja2` para renderizar la plantilla HTML.
-- `Playwright` y Chromium para convertir HTML a PDF.
+- `Playwright` y Chromium para convertir HTML a PDF con formato A4 y fondos impresos.
 - `Pydantic` para validar el payload recibido.
+- `templates/template.html` como plantilla activa del PDF.
+- Inter como fuente principal del PDF, cargada desde Google Fonts con fuentes del sistema como respaldo.
+- `CHROMIUM_PATH` para indicar una ruta personalizada al ejecutable de Chromium.
 
 > Por defecto, CORS está habilitado para todos los orígenes. En producción es recomendable restringirlos a dominios reales.
 
@@ -193,6 +202,7 @@ Revisa que:
 - el backend esté corriendo en `http://localhost:8000`
 - el puerto sea el correcto
 - CORS esté habilitado
+- estés accediendo al frontend desde el mismo backend (`http://localhost:8000`)
 
 ## Desarrollo y despliegue
 
@@ -210,7 +220,13 @@ uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 
 ### Render
 
-El proyecto incluye un `Dockerfile` para instalar Chromium y las librerías necesarias. En Render crea un **Web Service** conectado al repositorio y selecciona **Docker** como entorno. Render detectará el `Dockerfile` y expondrá la aplicación en el puerto asignado mediante `PORT`.
+El proyecto incluye un `Dockerfile` basado en Python 3.11 que instala Chromium, Inter y las librerías necesarias. En Render crea un **Web Service** conectado al repositorio y selecciona **Docker** como entorno. Render detectará el `Dockerfile` y expondrá la aplicación en el puerto asignado mediante `PORT`.
+
+El contenedor usa `/usr/bin/chromium` mediante la variable `CHROMIUM_PATH` y ejecuta:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}
+```
 
 La interfaz y la API se sirven desde el mismo servicio. Al abrir la URL pública de Render se cargará `index.html`, y el frontend usará automáticamente `/api/cotizacion/pdf` sin apuntar a `localhost`.
 
