@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.year.textContent = new Date().getFullYear();
   document.documentElement.setAttribute("data-theme", "dark");
   setupHotelManagement(elements.form);
+  setupHotelPriceWheelProtection(elements.form);
   restoreForm(elements.form);
   setQuoteDateToToday(elements.form);
   setupAutosave(elements.form);
@@ -48,6 +49,14 @@ function setupHotelManagement(form) {
     } catch { alert("No se pudo pegar desde el portapapeles. Revisá los permisos del navegador."); }
   });
   updateHotelBlockLabels(container);
+}
+
+function setupHotelPriceWheelProtection(form) {
+  form.addEventListener("wheel", (event) => {
+    if (event.target.matches('input[data-hotel-field="hotel_precio"]') && document.activeElement === event.target) {
+      event.preventDefault();
+    }
+  }, { passive: false });
 }
 
 function addHotelBlock(container, values = null) {
