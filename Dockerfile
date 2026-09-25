@@ -13,6 +13,7 @@ RUN apt-get update \
         shared-mime-info \
         fonts-dejavu \
         fonts-liberation \
+        fonts-inter \
         chromium \
     && rm -rf /var/lib/apt/lists/*
 

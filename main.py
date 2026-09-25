@@ -9,6 +9,7 @@ Endpoint: POST /api/cotizacion/pdf
 import os
 import io
 import logging
+import tempfile
 from datetime import datetime
 from typing import List, Optional
 from pathlib import Path
@@ -172,15 +173,14 @@ async def html_to_pdf(html_string: str, filename: str) -> bytes:
         logger.info(f"Generando PDF: {filename}")
         
         # Chromium reproduce el layout del navegador con mayor fidelidad que WeasyPrint.
-        base_url = BASE_DIR.as_uri() + "/"
-        html_with_base = html_string.replace(
-            "<head>",
-            f'<head><base href="{base_url}">',
-            1,
-        )
+        temp_html_path = None
         launch_options = {
             "headless": True,
-            "args": ["--no-sandbox", "--disable-dev-shm-usage"],
+            "args": [
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--allow-file-access-from-files",
+            ],
         }
         chromium_path = os.getenv("CHROMIUM_PATH")
         if chromium_path:
@@ -189,8 +189,18 @@ async def html_to_pdf(html_string: str, filename: str) -> bytes:
         async with async_playwright() as playwright:
             browser = await playwright.chromium.launch(**launch_options)
             try:
+                with tempfile.NamedTemporaryFile(
+                    mode="w",
+                    encoding="utf-8",
+                    suffix=".html",
+                    dir=BASE_DIR,
+                    delete=False,
+                ) as temp_html:
+                    temp_html.write(html_string)
+                    temp_html_path = Path(temp_html.name)
                 page = await browser.new_page()
-                await page.set_content(html_with_base, wait_until="load")
+                await page.goto(temp_html_path.as_uri(), wait_until="load")
+                await page.evaluate("document.fonts.ready")
                 await page.emulate_media(media="print")
                 pdf_bytes = await page.pdf(
                     format="A4",
@@ -199,6 +209,8 @@ async def html_to_pdf(html_string: str, filename: str) -> bytes:
                 )
             finally:
                 await browser.close()
+                if temp_html_path:
+                    temp_html_path.unlink(missing_ok=True)
         
         logger.info(f"PDF generado exitosamente: {filename} ({len(pdf_bytes)} bytes)")
         return pdf_bytes
