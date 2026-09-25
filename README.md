@@ -205,8 +205,14 @@ python main.py
 Para producción:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
 ```
+
+### Render
+
+El proyecto incluye un `Dockerfile` para instalar las librerías nativas que necesita WeasyPrint. En Render crea un **Web Service** conectado al repositorio y selecciona **Docker** como entorno. Render detectará el `Dockerfile` y expondrá la aplicación en el puerto asignado mediante `PORT`.
+
+La interfaz y la API se sirven desde el mismo servicio. Al abrir la URL pública de Render se cargará `index.html`, y el frontend usará automáticamente `/api/cotizacion/pdf` sin apuntar a `localhost`.
 
 ## Seguridad recomendada
 

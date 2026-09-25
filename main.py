@@ -16,6 +16,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import weasyprint
@@ -52,6 +53,24 @@ jinja_env = Environment(
     autoescape=select_autoescape(['html', 'xml']),
     enable_async=False
 )
+
+# Servir la interfaz desde el mismo servicio evita depender de localhost en producción.
+app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "assets")), name="assets")
+
+
+@app.get("/", include_in_schema=False)
+async def frontend():
+    return FileResponse(BASE_DIR / "index.html")
+
+
+@app.get("/script.js", include_in_schema=False)
+async def frontend_script():
+    return FileResponse(BASE_DIR / "script.js")
+
+
+@app.get("/style.css", include_in_schema=False)
+async def frontend_styles():
+    return FileResponse(BASE_DIR / "style.css")
 
 # ===== MODELOS PYDANTIC =====
 
@@ -153,7 +172,7 @@ def html_to_pdf(html_string: str, filename: str) -> bytes:
         logger.info(f"Generando PDF: {filename}")
         
         # Crear documento HTML desde string
-        html_doc = weasyprint.HTML(string=html_string, base_url=".")
+        html_doc = weasyprint.HTML(string=html_string, base_url=str(BASE_DIR))
         
         # Generar PDF en memoria
         pdf_bytes = html_doc.write_pdf()
@@ -465,7 +484,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=int(os.getenv("PORT", "8000")),
         log_level="info",
-        reload=True,  # Auto-reload en desarrollo
+        reload=False,
     )

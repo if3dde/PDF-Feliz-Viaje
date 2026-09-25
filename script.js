@@ -1,5 +1,7 @@
 const STORAGE_KEY = "felizviaje_form";
-const API_ENDPOINT = "http://localhost:8000/api/cotizacion/pdf";
+const API_ENDPOINT = window.location.protocol === "http:" || window.location.protocol === "https:"
+  ? "/api/cotizacion/pdf"
+  : "http://localhost:8000/api/cotizacion/pdf";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = getElements();
