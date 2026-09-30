@@ -797,6 +797,45 @@ html[data-theme="dark"] .choice-pill:has(input:checked) {
   color: #64748b;
 }
 
+.multi-hotel-row {
+  margin-top: 12px;
+  padding: 0;
+}
+
+.multi-hotel-row[hidden] {
+  display: none !important;
+}
+
+.multi-hotel-row .field-label {
+  color: var(--muted);
+}
+
+.hotel-block .multi-hotel-row .field input {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px !important;
+  background-color: #ffe8d6 !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 139, 43, 0.24) !important;
+  color: #9f4710 !important;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.hotel-block .multi-hotel-row .field input::placeholder {
+  color: #9f4710 !important;
+}
+
+html[data-theme="dark"] .hotel-block .multi-hotel-row .field input {
+  background-color: rgba(255, 139, 43, 0.18) !important;
+  border-color: rgba(255, 139, 43, 0.32) !important;
+  color: #ffd7bd !important;
+}
+
+html[data-theme="dark"] .hotel-block .multi-hotel-row .field input::placeholder {
+  color: #ffd7bd !important;
+}
+
 html[data-theme="dark"] .hotel-block {
   background: #0f1b31;
   border-color: rgba(149, 166, 199, 0.22);
@@ -1175,13 +1214,26 @@ html[data-theme="dark"] .btn-ghost {
             <details class="booking-section" open>
               <summary class="section-summary"><span class="section-icon section-icon-destination"><i data-lucide="map-pin" aria-hidden="true"></i></span><span class="section-text"><span class="section-title">Cliente y destino</span><span class="section-subtitle">Información general del viaje</span></span></summary>
               <div class="section-body">
-                <div class="search-strip"><label class="field field-search full" for="nombre_cliente"><span class="field-label">Nombre del cliente</span><input id="nombre_cliente" name="nombre_cliente" required /></label></div>
+                <div class="search-strip"><label class="field field-search full" for="nombre_cliente"><span class="field-label">Nombre del cliente</span><input id="nombre_cliente" name="nombre_cliente" /></label></div>
                 <div class="grid grid-3">
                   <label class="field" for="destino"><span class="field-label">Destino</span><input id="destino" name="destino" required /></label>
                   <label class="field" for="fecha_salida"><span class="field-label">Fecha de salida</span><input id="fecha_salida" name="fecha_salida" type="date" required /></label>
                   <label class="field" for="origen"><span class="field-label">Ciudad de salida</span><input id="origen" name="origen" /></label>
                   <label class="field" for="noches"><span class="field-label">Duración en noches</span><input id="noches" name="noches" type="number" min="1" placeholder="0" /></label>
                   <label class="field" for="pasajeros"><span class="field-label">Cantidad de pasajeros</span><input id="pasajeros" name="pasajeros" type="number" min="1" value="1" required /></label>
+                  <button type="button" id="destinoMultipleBtn" class="btn btn-soft destino-multiple-btn" aria-expanded="false">Destino multiple</button>
+                </div>
+                <div id="secondDestinationWrap" class="second-destination-wrap" hidden>
+                  <div class="multi-destination-row">
+                    <div class="field field-compact">
+                      <span class="field-label">Segundo destino</span>
+                      <input id="segundo_destino" name="segundo_destino" placeholder="Ej: Punta Cana" />
+                    </div>
+                    <div class="field field-compact field-price-total">
+                      <span class="field-label">Precio Total Paquete</span>
+                      <input id="precio_total_paquete" name="precio_total_paquete" type="number" min="0" step="0.01" placeholder="0.00" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </details>
@@ -1200,8 +1252,8 @@ html[data-theme="dark"] .btn-ghost {
                 </div>
                 <div class="grid grid-3">
                   <label class="field" for="fecha_vuelo_regreso"><span class="field-label">Fecha de vuelo de regreso</span><input id="fecha_vuelo_regreso" name="fecha_vuelo_regreso" type="date" /></label>
-                  <label class="field" for="aeropuerto_origen_regreso"><span class="field-label">Aeropuerto origen (regreso)</span><input id="aeropuerto_origen_regreso" name="aeropuerto_origen_regreso" placeholder="AEP" /></label>
-                  <label class="field" for="aeropuerto_destino_regreso"><span class="field-label">Aeropuerto destino (regreso)</span><input id="aeropuerto_destino_regreso" name="aeropuerto_destino_regreso" placeholder="EZE" /></label>
+                  <label class="field" for="aeropuerto_origen_regreso"><span class="field-label">Aeropuerto origen (regreso)</span><input id="aeropuerto_origen_regreso" name="aeropuerto_origen_regreso" placeholder="PUJ" /></label>
+                  <label class="field" for="aeropuerto_destino_regreso"><span class="field-label">Aeropuerto destino (regreso)</span><input id="aeropuerto_destino_regreso" name="aeropuerto_destino_regreso" placeholder="AEP" /></label>
                   <label class="field" for="hora_salida_regreso"><span class="field-label">Hora de salida (regreso)</span><input id="hora_salida_regreso" name="hora_salida_regreso" type="time" /></label>
                   <label class="field" for="hora_llegada_regreso"><span class="field-label">Hora de llegada (regreso)</span><input id="hora_llegada_regreso" name="hora_llegada_regreso" type="time" /></label>
                   <label class="field" for="numero_vuelo_regreso"><span class="field-label">Número de vuelo (regreso)</span><input id="numero_vuelo_regreso" name="numero_vuelo_regreso" placeholder="Arajet DM6208" /></label>
@@ -1227,6 +1279,10 @@ html[data-theme="dark"] .btn-ghost {
                       <label class="field"><span class="field-label">Régimen</span><select data-hotel-field="hotel_regimen"><option value="">Seleccionar</option><option>Solo habitación</option><option>Desayuno</option><option>Media pensión</option><option>All inclusive</option></select></label>
                       <label class="field"><span class="field-label">Precio por persona TOTAL (USD)</span><input data-hotel-field="hotel_precio" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" required /></label>
                       <label class="field"><span class="field-label">Habitaciones</span><input data-hotel-field="hotel_habitaciones" type="number" min="1" step="1" value="1" required /></label>
+                    </div>
+                    <div class="grid grid-2 multi-hotel-row" hidden>
+                      <label class="field"><span class="field-label">Ingreso hotel</span><input data-hotel-field="hotel_ingreso_primer_destino" type="date" /></label>
+                      <label class="field"><span class="field-label">Destino del hotel</span><input data-hotel-field="hotel_destino" placeholder="Ej: Rio" /></label>
                     </div>
                     <div class="grid grid-2"><label class="field"><span class="field-label">Descripción breve</span><textarea data-hotel-field="hotel_descripcion" rows="3"></textarea></label><label class="field hotel-maps-field"><span class="inline-input"><input data-hotel-field="hotel_maps" type="url" placeholder="https://maps.google.com/..." aria-label="Enlace de Google Maps" /><button type="button" class="btn btn-soft paste-map-btn">Pegar</button></span></label></div>
                   </article>

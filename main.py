@@ -91,8 +91,9 @@ class CotizacionData(BaseModel):
     """Datos completos de la cotización recibida del frontend"""
     
     # Cliente y Destino
-    nombre_cliente: str = Field(..., description="Nombre del cliente")
+    nombre_cliente: Optional[str] = Field(default=None, description="Nombre del cliente")
     destino: str = Field(..., description="Destino del viaje")
+    segundo_destino: Optional[str] = Field(None, description="Segundo destino del viaje")
     fecha_salida: str = Field(..., description="Fecha de salida (YYYY-MM-DD)")
     origen: Optional[str] = Field(None, description="Ciudad de salida")
     noches: Optional[str] = Field(None, description="Duración en noches")
@@ -296,14 +297,7 @@ async def generar_cotizacion_pdf(data: CotizacionData):
         HTTPException: Si hay error en la validación o generación
     """
     try:
-        logger.info(f"Solicitud recibida para cliente: {data.nombre_cliente}")
-        
-        # Validación adicional
-        if not data.nombre_cliente or not data.nombre_cliente.strip():
-            raise HTTPException(
-                status_code=400,
-                detail="El nombre del cliente es obligatorio"
-            )
+        logger.info(f"Solicitud recibida para cliente: {data.nombre_cliente or 'Sin nombre'}")
         
         if not data.hoteles or len(data.hoteles) == 0:
             raise HTTPException(
@@ -362,15 +356,15 @@ async def generar_cotizacion_pdf(data: CotizacionData):
                 hotel_precio = float(h.hotel_precio)
             except Exception:
                 hotel_precio = 0.0
-                
-            total_opcion = (hotel_precio * passengers) + precio_vuelo
-            
-            # El monto de reserva es el precio del vuelo (o 30% como fallback si no se especificó)
+
+            total_opcion = hotel_precio * passengers
+
+            # La reserva vuelve a calcularse con el valor del vuelo, como antes.
             if precio_vuelo > 0:
                 reserva = precio_vuelo
             else:
                 reserva = total_opcion * 0.30
-                
+
             saldo = total_opcion - reserva
             
             if financiacion_activa and num_cuotas > 0:
@@ -388,8 +382,9 @@ async def generar_cotizacion_pdf(data: CotizacionData):
 
         # Preparar contexto para Jinja2
         context = {
-            "nombre_cliente": data.nombre_cliente,
+            "nombre_cliente": data.nombre_cliente.strip() if data.nombre_cliente else "",
             "destino": data.destino,
+            "segundo_destino": data.segundo_destino.strip() if data.segundo_destino else "",
             "fecha_salida": format_date_to_dmy(data.fecha_salida),
             "origen": data.origen or "No especificado",
             "noches": data.noches or "0",

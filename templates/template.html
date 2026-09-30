@@ -316,12 +316,12 @@
         <div class="brand-lockup">
           <img class="logo" src="assets/BLACKLOGO BLANCO FV.png" alt="Feliz Viaje" />
         </div>
-        <div class="header-message"><strong>Franquicia Tribunales, CABA</strong><span class="client-name">Cliente : {{ nombre_cliente }}</span></div>
+        <div class="header-message"><strong>Franquicia Tribunales, CABA</strong>{% if nombre_cliente %}<span class="client-name">Cliente : {{ nombre_cliente }}</span>{% endif %}</div>
       </header>
 
       <section class="trip-hero">
-        <h1 class="destination">{{ destino }} Presupuesto</h1>
-        <p class="travel-dates">{{ fecha_salida }} | {{ noches }} noches | {{ passengers }} pasajero/s</p>
+        <h1 class="destination">{% if segundo_destino %}{{ destino }} + {{ segundo_destino }}{% else %}{{ destino }}{% endif %} Presupuesto</h1>
+        <p class="travel-dates">{{ fecha_salida }} | {{ noches }} noches | {{ passengers }} pasajero/s{% if segundo_destino %} · Segundo destino: {{ segundo_destino }}{% endif %}</p>
       </section>
 
       <section class="section flight-section">

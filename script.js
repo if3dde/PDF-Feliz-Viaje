@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAutosave(elements.form);
   setupTripDateMinimums(elements.form);
   setupRealtimeValidation(elements.form);
+  setupMultipleDestination(elements.form);
   setupActions(elements);
   if (window.lucide) lucide.createIcons();
 });
@@ -65,6 +66,8 @@ function addHotelBlock(container, values = null) {
   const newBlock = firstBlock.cloneNode(true);
   clearHotelBlock(newBlock);
   if (values) fillHotelBlock(newBlock, values);
+  const multipleDestinationActive = document.getElementById("destinoMultipleBtn")?.classList.contains("active");
+  newBlock.querySelector(".multi-hotel-row")?.toggleAttribute("hidden", !multipleDestinationActive);
   container.appendChild(newBlock);
   updateHotelBlockLabels(container);
   return newBlock;
@@ -218,6 +221,64 @@ function setupRealtimeValidation(form) {
   });
 }
 
+function setupMultipleDestination(form) {
+  const btn = form.querySelector("#destinoMultipleBtn");
+  const wrap = form.querySelector("#secondDestinationWrap");
+  const input = form.querySelector("#segundo_destino");
+  if (!btn || !wrap || !input) return;
+
+  const setHotelPriceInputsDisabled = (disabled) => {
+    form.querySelectorAll('[data-hotel-field="hotel_precio"]').forEach((field) => {
+      field.disabled = disabled;
+      if (disabled) {
+        if (field.value !== "-") {
+          field.dataset.originalValue = field.value || "";
+        }
+        field.value = "-";
+        field.setAttribute("placeholder", "-");
+      } else {
+        const previousValue = field.dataset.originalValue ?? "";
+        field.value = previousValue;
+        if (!previousValue) field.value = "";
+        field.setAttribute("placeholder", "0.00");
+      }
+    });
+  };
+
+  const setHotelMultipleFieldsVisible = (visible) => {
+    form.querySelectorAll(".multi-hotel-row").forEach((row) => row.toggleAttribute("hidden", !visible));
+  };
+
+  const setOpen = (open) => {
+    wrap.hidden = !open;
+    wrap.classList.toggle("active", open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.classList.toggle("active", open);
+    btn.textContent = open ? "Destino multiple activo" : "Destino multiple";
+    setHotelPriceInputsDisabled(open);
+    setHotelMultipleFieldsVisible(open);
+    if (open) input.focus();
+  };
+
+  form.querySelectorAll('[data-hotel-field="hotel_precio"]').forEach((field) => {
+    if (!field.dataset.originalValue) {
+      field.dataset.originalValue = field.value || "";
+    }
+  });
+
+  btn.addEventListener("click", () => {
+    const shouldOpen = wrap.hidden;
+    setOpen(shouldOpen);
+  });
+
+  const savedValue = form.querySelector('[name="segundo_destino"]')?.value?.trim();
+  setOpen(Boolean(savedValue));
+
+  form.addEventListener("reset", () => {
+    setTimeout(() => setOpen(false), 0);
+  });
+}
+
 function validateDateField(form, name) {
   clearFieldError(form, name);
   const value = form.querySelector('[name="' + name + '"]')?.value;
@@ -238,7 +299,7 @@ function validateForm(values) {
   if (values.fecha_salida && values.fecha_vuelo_salida && values.fecha_vuelo_salida < values.fecha_salida) errors.push("La fecha del vuelo de ida no puede ser anterior a la fecha de salida.");
   if (!Number.isInteger(Number(values.escala_ida)) || Number(values.escala_ida) < 0) errors.push("Las escalas de ida deben ser un número entero mayor o igual a 0.");
   if (!Number.isInteger(Number(values.escala_vuelta)) || Number(values.escala_vuelta) < 0) errors.push("Las escalas de vuelta deben ser un número entero mayor o igual a 0.");
-  if (values.hoteles.some((hotel) => Number.isNaN(Number(hotel.hotel_precio)) || Number(hotel.hotel_precio) < 0)) errors.push("El precio de cada hotel debe ser un número válido.");
+  if (values.hoteles.some((hotel) => hotel.hotel_precio !== "-" && (Number.isNaN(Number(hotel.hotel_precio)) || Number(hotel.hotel_precio) < 0))) errors.push("El precio de cada hotel debe ser un número válido.");
   if (values.hoteles.some((hotel) => !Number.isInteger(Number(hotel.hotel_habitaciones)) || Number(hotel.hotel_habitaciones) < 1)) errors.push("La cantidad de habitaciones de cada hotel debe ser un número entero mayor o igual a 1.");
   return errors;
 }

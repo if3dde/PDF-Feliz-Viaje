@@ -726,6 +726,75 @@ html[data-theme="dark"] .choice-pill:has(input:checked) {
   flex: 1;
 }
 
+.destino-multiple-btn {
+  align-self: end;
+  width: fit-content;
+  min-width: 150px;
+  margin-top: auto;
+  margin-bottom: 0;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.destino-multiple-btn.active {
+  background: #f97316;
+  color: #fff;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.22), 0 8px 18px rgba(249, 115, 22, 0.22);
+  transform: translateY(-1px);
+}
+
+.destino-multiple-btn.active:hover {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
+.second-destination-wrap {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.second-destination-wrap.active {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+}
+
+.multi-destination-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(200px, 260px);
+  align-items: end;
+  gap: 12px;
+  width: 100%;
+}
+
+.multi-destination-row > .field-compact {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.field-price-total {
+  justify-self: end;
+}
+
+[data-hotel-field="hotel_precio"]:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+html[data-theme="dark"] [data-hotel-field="hotel_precio"]:disabled {
+  background: rgba(148, 163, 184, 0.08);
+  color: rgba(226, 232, 240, 0.46);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
 .hotel-maps-field .field-label {
   display: block;
   line-height: 1.3;
@@ -788,6 +857,29 @@ html[data-theme="dark"] .choice-pill:has(input:checked) {
 .hotel-block .field input::placeholder,
 .hotel-block .field textarea::placeholder {
   color: #64748b;
+}
+
+.multi-hotel-row {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f97316;
+}
+
+.multi-hotel-row .field-label {
+  color: #ffffff;
+}
+
+.hotel-block .multi-hotel-row .field input {
+  background-color: #f97316 !important;
+  background-image: none !important;
+  border: 2px solid #c2410c !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.hotel-block .multi-hotel-row .field input::placeholder {
+  color: rgba(255, 255, 255, 0.82) !important;
 }
 
 html[data-theme="dark"] .hotel-block {
