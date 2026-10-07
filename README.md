@@ -115,6 +115,8 @@ Ejemplo de request:
 {
   "nombre_cliente": "Juan Pérez",
   "destino": "Riviera Maya",
+  "segundo_destino": null,
+  "precio_total_paquete": null,
   "fecha_salida": "2026-07-15",
   "origen": "Buenos Aires",
   "noches": "7",
@@ -128,6 +130,8 @@ Ejemplo de request:
       "hotel_estrellas": "⭐⭐⭐⭐⭐",
       "hotel_regimen": "All inclusive",
       "hotel_precio": "1500",
+      "hotel_ingreso_primer_destino": null,
+      "hotel_destino": null,
       "hotel_descripcion": "Resort de lujo con playa privada",
       "hotel_maps": "https://maps.google.com"
     }
@@ -136,6 +140,8 @@ Ejemplo de request:
 ```
 
 El servidor responderá con el PDF generado para descarga. El backend calcula automáticamente el total del paquete, la reserva y la financiación cuando el viaje permite cuotas. La cantidad se muestra como `1 cuota` o `N cuotas` según corresponda.
+
+Cuando se activa el destino múltiple desde el formulario, `segundo_destino` y `precio_total_paquete` son obligatorios. Cada hotel puede incluir `hotel_ingreso_primer_destino` y `hotel_destino`; la fecha de ingreso no puede ser anterior a `fecha_salida`. En ese modo, `precio_total_paquete` representa el precio total por persona del paquete y se muestra en el resumen del PDF.
 
 ## Prueba rápida con curl
 
