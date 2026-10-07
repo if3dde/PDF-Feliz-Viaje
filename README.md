@@ -143,6 +143,8 @@ El servidor responderá con el PDF generado para descarga. El backend calcula au
 
 Cuando se activa el destino múltiple desde el formulario, `segundo_destino` y `precio_total_paquete` son obligatorios. Cada hotel puede incluir `hotel_ingreso_primer_destino` y `hotel_destino`; la fecha de ingreso no puede ser anterior a `fecha_salida`. En ese modo, `precio_total_paquete` representa el precio total por persona del paquete y se muestra en el resumen del PDF.
 
+En el PDF, el título de la sección de hoteles se muestra como `ALOJAMIENTOS` cuando el destino múltiple está activo; para un único destino se mantiene como `OPCIONES DE ALOJAMIENTO`.
+
 ## Prueba rápida con curl
 
 ```bash

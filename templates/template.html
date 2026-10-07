@@ -197,6 +197,7 @@
         border: 1px solid var(--line);
         border-top: 3px solid var(--orange);
         border-radius: 9px;
+        text-align: center;
       }
       .service-card strong { display: block; color: var(--navy); font-size: 12pt; text-transform: uppercase; letter-spacing: 0.5px; }
       .service-card span { display: block; margin-top: 6px; color: var(--ink); font-size: 11pt; line-height: 1.4; }
@@ -214,6 +215,7 @@
       .service-card.card {
         background-color: #f0f7ff;
         border: 1px solid #000000;
+        box-shadow: none;
       }
       .hotel-card {
         margin: 0 0 11px;
@@ -226,6 +228,7 @@
         margin-bottom: 8px;
         background: #ffffff;
         border: 1px solid #000000;
+        box-shadow: none;
       }
       .hotel-top { display: flex; min-height: 113px; }
       .hotel-info {
@@ -437,7 +440,7 @@
       </section>
 
       <section class="section hotel-section">
-        <h2 class="section-title hotel-section-title">OPCIONES DE ALOJAMIENTO</h2>
+        <h2 class="section-title hotel-section-title">{% if segundo_destino %}ALOJAMIENTOS{% else %}OPCIONES DE ALOJAMIENTO{% endif %}</h2>
         {% for hotel in hoteles %}
         <article class="hotel-card card">
           <div class="hotel-top">
