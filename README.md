@@ -121,7 +121,6 @@ Ejemplo de request:
   "moneda": "USD",
   "fecha_cotizacion": "2026-09-04",
   "asistencia": "sí",
-  "validez_oferta": "7",
   "hoteles": [
     {
       "hotel_categoria": "1- PROMO MEJOR PRECIO",
@@ -156,11 +155,23 @@ curl -X POST "http://localhost:8000/api/cotizacion/pdf" \
 
 ## Uso con el frontend
 
+### Usando el frontend servido por FastAPI
+
 1. Levanta el backend.
-2. Abre `http://localhost:8000` en el navegador. El backend sirve el frontend y sus recursos, por lo que no es necesario usar Live Server.
-3. Completa los datos de la cotización.
-4. Haz clic en el botón para generar el PDF.
-5. El archivo se descargará automáticamente.
+2. Abre `http://localhost:8000` en el navegador. El backend sirve el frontend y sus recursos.
+3. Completa los datos de la cotización y haz clic en el botón para generar el PDF.
+
+### Usando Live Server durante el desarrollo
+
+También puedes abrir `index.html` con Live Server, por ejemplo en `http://127.0.0.1:5500`:
+
+1. Levanta el backend en `http://localhost:8000`.
+2. Abre `index.html` con Live Server.
+3. El frontend detecta que está en un puerto local distinto de `8000` y envía el `POST` directamente al backend.
+
+No uses la URL de Live Server como endpoint de la API: Live Server solo sirve archivos estáticos y responde `405 Method Not Allowed` ante el `POST`.
+
+En Render, al abrir la URL pública del servicio, el frontend usa automáticamente `/api/cotizacion/pdf` en el mismo origen y no depende de `localhost`.
 
 ## Variables y configuración importantes
 
@@ -228,6 +239,14 @@ El contenedor usa `/usr/bin/chromium` mediante la variable `CHROMIUM_PATH` y eje
 uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}
 ```
 
+Es importante seleccionar **Docker** en Render. Si se utiliza el entorno nativo de Python, el navegador no se instala automáticamente. En ese caso, configura el Build Command como:
+
+```bash
+pip install -r requirements.txt && playwright install --with-deps chromium
+```
+
+El error `Executable doesn't exist at /home/.../.cache/ms-playwright/...` significa que ese navegador todavía no fue instalado en el entorno donde corre Uvicorn.
+
 La interfaz y la API se sirven desde el mismo servicio. Al abrir la URL pública de Render se cargará `index.html`, y el frontend usará automáticamente `/api/cotizacion/pdf` sin apuntar a `localhost`.
 
 ## Seguridad recomendada
@@ -241,4 +260,3 @@ Este proyecto está destinado a uso interno o comercial según el contexto del n
 ## Contacto
 
 Proyecto desarrollado para FelizViaje.
-

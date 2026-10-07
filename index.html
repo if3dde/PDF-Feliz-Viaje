@@ -341,6 +341,22 @@ html[data-theme="dark"] .booking-section {
   margin-top: 8px;
 }
 
+.required-attention input {
+  animation: multi-required-blink 0.85s ease-in-out infinite;
+  border-color: #dc2626 !important;
+}
+
+@keyframes multi-required-blink {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.35);
+  }
+}
+
 .booking-section .section-title { color: var(--text); }
 .booking-section .section-summary::after { color: var(--muted); }
 .booking-section .section-subtitle,
@@ -781,7 +797,13 @@ html[data-theme="dark"] .choice-pill:has(input:checked) {
 
 .hotel-block .hotel-option-title,
 .hotel-block .field-label {
-  color: #1a2742;
+  color: #64748b;
+}
+
+.hotel-block .hotel-option-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
 .hotel-block .field input,
@@ -847,11 +869,15 @@ html[data-theme="dark"] .hotel-block .field-label {
   color: var(--muted);
 }
 
+html[data-theme="dark"] .hotel-block .hotel-option-title {
+  color: #ffffff;
+}
+
 html[data-theme="dark"] .hotel-block .field input,
 html[data-theme="dark"] .hotel-block .field select,
 html[data-theme="dark"] .hotel-block .field textarea {
   background: #0b1528;
-  color: #eef4ff;
+  color: var(--muted);
   border-color: rgba(149, 166, 199, 0.22);
 }
 
@@ -1230,7 +1256,7 @@ html[data-theme="dark"] .btn-ghost {
                       <input id="segundo_destino" name="segundo_destino" placeholder="Ej: Punta Cana" />
                     </div>
                     <div class="field field-compact field-price-total">
-                      <span class="field-label">Precio Total Paquete</span>
+                      <span class="field-label">Precio Total Paquete por persona</span>
                       <input id="precio_total_paquete" name="precio_total_paquete" type="number" min="0" step="0.01" placeholder="0.00" />
                     </div>
                   </div>
@@ -1247,7 +1273,7 @@ html[data-theme="dark"] .btn-ghost {
                   <label class="field" for="precio_vuelo"><span class="field-label">Precio del vuelo (USD)</span><input id="precio_vuelo" name="precio_vuelo" type="number" min="0" step="0.01" placeholder="0.00" /></label>
                   <label class="field" for="hora_salida_ida"><span class="field-label">Hora de salida (ida)</span><input id="hora_salida_ida" name="hora_salida_ida" type="time" /></label>
                   <label class="field" for="hora_llegada_ida"><span class="field-label">Hora de llegada (ida)</span><input id="hora_llegada_ida" name="hora_llegada_ida" type="time" /></label>
-                  <label class="field" for="numero_vuelo_ida"><span class="field-label">Número de vuelo (ida)</span><input id="numero_vuelo_ida" name="numero_vuelo_ida" placeholder="Arajet DM6207" /></label>
+                  <label class="field" for="numero_vuelo_ida"><span class="field-label">Número de vuelo (ida)</span><input id="numero_vuelo_ida" name="numero_vuelo_ida" /></label>
                   <label class="field" for="escala_ida"><span class="field-label">Escalas ida</span><input id="escala_ida" name="escala_ida" type="number" min="0" step="1" value="0" required /></label>
                 </div>
                 <div class="grid grid-3">
@@ -1256,7 +1282,7 @@ html[data-theme="dark"] .btn-ghost {
                   <label class="field" for="aeropuerto_destino_regreso"><span class="field-label">Aeropuerto destino (regreso)</span><input id="aeropuerto_destino_regreso" name="aeropuerto_destino_regreso" placeholder="AEP" /></label>
                   <label class="field" for="hora_salida_regreso"><span class="field-label">Hora de salida (regreso)</span><input id="hora_salida_regreso" name="hora_salida_regreso" type="time" /></label>
                   <label class="field" for="hora_llegada_regreso"><span class="field-label">Hora de llegada (regreso)</span><input id="hora_llegada_regreso" name="hora_llegada_regreso" type="time" /></label>
-                  <label class="field" for="numero_vuelo_regreso"><span class="field-label">Número de vuelo (regreso)</span><input id="numero_vuelo_regreso" name="numero_vuelo_regreso" placeholder="Arajet DM6208" /></label>
+                  <label class="field" for="numero_vuelo_regreso"><span class="field-label">Número de vuelo (regreso)</span><input id="numero_vuelo_regreso" name="numero_vuelo_regreso" /></label>
                   <label class="field" for="escala_vuelta"><span class="field-label">Escalas vuelta</span><input id="escala_vuelta" name="escala_vuelta" type="number" min="0" step="1" value="0" required /></label>
                 </div>
                 <div class="choice-panel" role="group" aria-labelledby="equipaje-label"><div class="choice-panel-head"><span id="equipaje-label" class="field-label">Equipaje incluido</span></div><div class="pill-grid"><label class="choice-pill"><input type="checkbox" name="equipaje" value="Mochila" /><span>Mochila</span></label><label class="choice-pill"><input type="checkbox" name="equipaje" value="Carry on" /><span>Carry on</span></label><label class="choice-pill"><input type="checkbox" name="equipaje" value="Bodega" /><span>Bodega</span></label></div></div>
@@ -1282,7 +1308,7 @@ html[data-theme="dark"] .btn-ghost {
                     </div>
                     <div class="grid grid-2 multi-hotel-row" hidden>
                       <label class="field"><span class="field-label">Ingreso hotel</span><input data-hotel-field="hotel_ingreso_primer_destino" type="date" /></label>
-                      <label class="field"><span class="field-label">Destino del hotel</span><input data-hotel-field="hotel_destino" placeholder="Ej: Rio" /></label>
+                      <label class="field"><span class="field-label">Destino del hotel</span><input data-hotel-field="hotel_destino" /></label>
                     </div>
                     <div class="grid grid-2"><label class="field"><span class="field-label">Descripción breve</span><textarea data-hotel-field="hotel_descripcion" rows="3"></textarea></label><label class="field hotel-maps-field"><span class="inline-input"><input data-hotel-field="hotel_maps" type="url" placeholder="https://maps.google.com/..." aria-label="Enlace de Google Maps" /><button type="button" class="btn btn-soft paste-map-btn">Pegar</button></span></label></div>
                   </article>
@@ -1295,9 +1321,7 @@ html[data-theme="dark"] .btn-ghost {
               <div class="section-body"><div class="grid grid-3">
                 <label class="field" for="moneda"><span class="field-label">Moneda</span><select id="moneda" name="moneda"><option>ARS</option><option selected>USD</option><option>EUR</option></select></label>
                 <label class="field" for="fecha_cotizacion"><span class="field-label">Fecha de cotización</span><input id="fecha_cotizacion" name="fecha_cotizacion" type="date" /></label>
-                <label class="field" for="validez_oferta"><span class="field-label">Validez de la oferta (días)</span><input id="validez_oferta" name="validez_oferta" type="number" min="1" value="7" /></label>
                 <label class="field" for="asistencia"><span class="field-label">Asistencia al viajero incluida</span><select id="asistencia" name="asistencia"><option value="sí">Sí</option><option value="no" selected>No</option></select></label>
-                <label class="field full" for="texto_adicional"><span class="field-label">Texto adicional (opcional)</span><textarea id="texto_adicional" name="texto_adicional" rows="4" placeholder="Mensaje extra para el cliente..."></textarea></label>
               </div></div>
             </details>
             <div class="form-actions"><button id="generateBtn" type="button" class="btn btn-primary">Generar PDF de Cotización</button><button id="clearBtn" type="button" class="btn btn-ghost">Limpiar formulario</button></div>
@@ -1309,4 +1333,3 @@ html[data-theme="dark"] .btn-ghost {
     <script src="script.js"></script>
   </body>
 </html>
-

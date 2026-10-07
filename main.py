@@ -9,6 +9,7 @@ Endpoint: POST /api/cotizacion/pdf
 import os
 import io
 import logging
+import shutil
 import tempfile
 from datetime import datetime
 from typing import List, Optional
@@ -83,6 +84,8 @@ class HotelData(BaseModel):
     hotel_regimen: Optional[str] = Field(None, description="Régimen (Solo habitación, Desayuno, etc)")
     hotel_precio: str = Field(..., description="Precio por persona")
     hotel_habitaciones: str = Field(default="1", description="Cantidad de habitaciones")
+    hotel_ingreso_primer_destino: Optional[str] = Field(None, description="Fecha de ingreso al hotel")
+    hotel_destino: Optional[str] = Field(None, description="Destino del hotel")
     hotel_descripcion: Optional[str] = Field(None, description="Descripción breve del hotel")
     hotel_maps: Optional[str] = Field(None, description="Link de Google Maps")
 
@@ -99,6 +102,7 @@ class CotizacionData(BaseModel):
     noches: Optional[str] = Field(None, description="Duración en noches")
     pasajeros: int = Field(default=1, ge=1, description="Cantidad de pasajeros")
     precio_vuelo: Optional[float] = Field(0.0, description="Precio del vuelo")
+    precio_total_paquete: Optional[float] = Field(None, description="Precio total del paquete para destino múltiple")
 
     
     # Vuelo de Ida
@@ -134,8 +138,6 @@ class CotizacionData(BaseModel):
     moneda: Optional[str] = Field(default="USD", description="Moneda (ARS, USD, EUR)")
     fecha_cotizacion: Optional[str] = Field(None, description="Fecha de cotización (YYYY-MM-DD)")
     asistencia: Optional[str] = Field(default="no", description="Asistencia incluida (sí/no)")
-    validez_oferta: Optional[str] = Field(default="7", description="Validez de la oferta en días")
-    texto_adicional: Optional[str] = Field(None, description="Texto adicional personalizado")
 
 
 # ===== FUNCIONES AUXILIARES =====
@@ -183,25 +185,38 @@ async def html_to_pdf(html_string: str, filename: str) -> bytes:
                 "--allow-file-access-from-files",
             ],
         }
-        chromium_path = os.getenv("CHROMIUM_PATH")
-        if chromium_path:
-            launch_options["executable_path"] = chromium_path
-
         async with async_playwright() as playwright:
+            chromium_path = find_chromium_path() or playwright.chromium.executable_path
+            if not Path(chromium_path).is_file():
+                raise RuntimeError(
+                    "No se encontró Chromium. Instálalo con "
+                    "'playwright install chromium' o configura CHROMIUM_PATH."
+                )
+            launch_options["executable_path"] = chromium_path
             browser = await playwright.chromium.launch(**launch_options)
             try:
+                # El HTML temporal se guarda fuera del proyecto. Convertir los
+                # recursos a URLs absolutas evita perder imágenes desde /tmp.
+                assets_url = (BASE_DIR / "assets").as_uri()
+                html_with_base_url = html_string.replace(
+                    "<head>",
+                    f'<head><base href="{BASE_DIR.as_uri()}/">',
+                    1,
+                ).replace("assets/", f"{assets_url}/")
                 with tempfile.NamedTemporaryFile(
                     mode="w",
                     encoding="utf-8",
                     suffix=".html",
-                    dir=BASE_DIR,
                     delete=False,
                 ) as temp_html:
-                    temp_html.write(html_string)
+                    temp_html.write(html_with_base_url)
                     temp_html_path = Path(temp_html.name)
                 page = await browser.new_page()
                 await page.goto(temp_html_path.as_uri(), wait_until="load")
                 await page.evaluate("document.fonts.ready")
+                await page.wait_for_function(
+                    "() => Array.from(document.images).every((image) => image.complete)"
+                )
                 await page.emulate_media(media="print")
                 pdf_bytes = await page.pdf(
                     format="A4",
@@ -218,6 +233,24 @@ async def html_to_pdf(html_string: str, filename: str) -> bytes:
     except Exception as e:
         logger.error(f"Error al generar PDF: {str(e)}")
         raise
+
+
+def find_chromium_path() -> Optional[str]:
+    """Devuelve una ruta válida a Chromium configurada o instalada en el sistema."""
+    configured_path = os.getenv("CHROMIUM_PATH")
+    candidates = [
+        configured_path,
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        shutil.which("google-chrome"),
+        shutil.which("chrome"),
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+    ]
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return candidate
+    return None
 
 
 def sanitize_filename(text: str) -> str:
@@ -256,18 +289,6 @@ def format_date_to_dmy(date_str: Optional[str]) -> str:
 
 
 # ===== RUTAS / ENDPOINTS =====
-
-@app.get("/")
-async def root():
-    """Endpoint de prueba"""
-    return {
-        "status": "online",
-        "message": "FelizViaje PDF Generator API",
-        "endpoint": "/api/cotizacion/pdf",
-        "method": "POST",
-        "docs": "/docs"
-    }
-
 
 @app.get("/health")
 async def health_check():
@@ -376,7 +397,8 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             h_dict.update({
                 "precio_total": total_opcion,
                 "precio_reserva": reserva,
-                "precio_cuota": cuota
+                "precio_cuota": cuota,
+                "hotel_ingreso_formateado": format_date_to_dmy(h.hotel_ingreso_primer_destino),
             })
             hoteles_context.append(h_dict)
 
@@ -411,12 +433,11 @@ async def generar_cotizacion_pdf(data: CotizacionData):
             "moneda": data.moneda or "USD",
             "fecha_cotizacion": format_date_to_dmy(data.fecha_cotizacion) if data.fecha_cotizacion else datetime.now().strftime("%d/%m/%Y"),
             "asistencia": data.asistencia or "no",
-            "validez_oferta": data.validez_oferta or "7",
-            "texto_adicional": data.texto_adicional or "",
             "financiacion_activa": financiacion_activa,
             "num_cuotas": num_cuotas,
             "limite_pago": fecha_limite_str,
             "precio_vuelo": precio_vuelo,
+            "precio_total_paquete": data.precio_total_paquete or 0,
         }
         
         logger.info("Contexto preparado. Renderizando template...")

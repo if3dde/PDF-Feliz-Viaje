@@ -8,10 +8,6 @@
       @page { 
         size: A4; 
         margin: 0;
-        background-image: url("assets/amarillo.jpg");
-        background-position: center center;
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
         @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 9pt; color: #53677e; font-family: "Inter", sans-serif; }
       }
       @page :first { margin-top: 0; }
@@ -39,7 +35,11 @@
         font-size: 12.5pt;
         line-height: 1.6;
       }
-      .page { min-height: 100%; padding: 15mm 14mm 13mm; }
+      .page {
+        min-height: 100%;
+        padding: 15mm 14mm 13mm;
+        background: url("assets/amarillo.jpg") center center / 100% 100% no-repeat;
+      }
       .brand-header {
         display: flex;
         align-items: center;
@@ -95,6 +95,33 @@
         content: "";
       }
       .destination { position: relative; z-index: 1; margin: 0; color: var(--ink); font-size: 28pt; font-weight: 800; letter-spacing: -.75px; }
+      .destination-group {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        white-space: nowrap;
+      }
+      .destination-group > span:first-child {
+        text-align: center;
+      }
+      .destination-group > span:last-child {
+        text-align: center;
+      }
+      .destination-separator {
+        color: var(--ink);
+        flex: 0 0 auto;
+        font-size: 20pt;
+      }
+      .destination-suffix {
+        display: block;
+        margin-top: 0;
+        color: #64748b;
+        font-size: 16pt;
+        letter-spacing: 0;
+        text-align: center;
+      }
       .travel-dates { position: relative; z-index: 1; margin: 8px 0 0; color: var(--orange); font-size: 18pt; font-weight: 800; }
       .trip-data {
         position: relative;
@@ -221,6 +248,9 @@
         padding-top: 26px;
         padding-bottom: 18px;
       }
+      .hotel-price.multi-destination-price {
+        padding-right: 30px;
+      }
       .hotel-category {
         display: inline-block;
         align-self: flex-start;
@@ -234,6 +264,26 @@
         line-height: 1.2;
         font-weight: 800;
         text-transform: uppercase;
+      }
+      .hotel-category-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .hotel-category-row .hotel-category {
+        margin-bottom: 0;
+      }
+      .hotel-destination {
+        display: inline-block;
+        padding: 4px 8px;
+        color: #0b3155;
+        background: #eef5ff;
+        border: 1px solid #b9d3f5;
+        border-radius: 999px;
+        font-size: 10pt;
+        line-height: 1.2;
+        font-weight: 800;
       }
       .hotel-name { margin: 0; color: #111827; font-size: 18pt; font-weight: bold; line-height: 1.25; }
       .hotel-stars { color: #ffc928; font-size: 12pt; letter-spacing: 1px; white-space: nowrap; }
@@ -252,6 +302,40 @@
         font-size: 8.5pt;
         font-weight: 800;
         line-height: 1.25;
+      }
+      .multi-finance-box {
+        margin-top: 16px;
+        min-height: 72px;
+        padding: 24px 10px;
+        color: var(--blue);
+        background: #ffffff;
+        border: 1px solid #000000;
+        border-radius: 0;
+        font-size: 18pt;
+        font-weight: 800;
+        line-height: normal;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .multi-finance-label {
+        text-transform: uppercase;
+      }
+      .multi-finance-amount {
+        color: #0b3155;
+        font-size: 23pt;
+      }
+      .multi-finance-caption {
+        color: #64748b;
+        font-size: 10pt;
+        font-weight: 500;
+      }
+      .multi-hotel-caption {
+        color: #334155;
+        font-weight: 700;
+        text-align: center;
       }
       .hotel-bottom { display: flex; flex-direction: row; justify-content: space-between; align-items: center; padding: 15px 20px; background: #ffffff; border-top: 1px solid var(--line); }
       .hotel-bottom:empty { display: none; }
@@ -320,8 +404,15 @@
       </header>
 
       <section class="trip-hero">
-        <h1 class="destination">{% if segundo_destino %}{{ destino }} + {{ segundo_destino }}{% else %}{{ destino }}{% endif %} Presupuesto</h1>
-        <p class="travel-dates">{{ fecha_salida }} | {{ noches }} noches | {{ passengers }} pasajero/s{% if segundo_destino %} · Segundo destino: {{ segundo_destino }}{% endif %}</p>
+        <h1 class="destination">
+          {% if segundo_destino %}
+            <span class="destination-group"><span>{{ destino }}</span><span class="destination-separator">-</span><span>{{ segundo_destino }}</span></span>
+          {% else %}
+            {{ destino }}
+          {% endif %}
+          <span class="destination-suffix">presupuesto</span>
+        </h1>
+        <p class="travel-dates">{{ fecha_salida }} | {{ noches }} noches | {{ passengers }} pasajero/s</p>
       </section>
 
       <section class="section flight-section">
@@ -351,15 +442,25 @@
         <article class="hotel-card card">
           <div class="hotel-top">
             <div class="hotel-info">
-              {% if hotel.hotel_categoria %}<span class="hotel-category">{{ hotel.hotel_categoria }}</span>{% endif %}
+              {% if hotel.hotel_categoria or (segundo_destino and hotel.hotel_destino) %}
+                <div class="hotel-category-row">
+                  {% if hotel.hotel_categoria %}<span class="hotel-category">{{ hotel.hotel_categoria }}</span>{% endif %}
+                  {% if segundo_destino and hotel.hotel_destino %}<span class="hotel-destination">{{ hotel.hotel_destino }}</span>{% endif %}
+                </div>
+              {% endif %}
               <h3 class="hotel-name">{{ hotel.hotel_nombre }} <span class="hotel-stars">{% for _ in range(hotel.hotel_estrellas|length) %}★{% endfor %}</span></h3>
               <div class="hotel-meta"><strong>{{ hotel.hotel_regimen }}</strong>{% if hotel.hotel_habitaciones %} · {{ hotel.hotel_habitaciones }} habitación{% if hotel.hotel_habitaciones != "1" %}es{% endif %}{% endif %}</div>
               {% if hotel.hotel_maps %}<a class="map-link" href="{{ hotel.hotel_maps }}">Ver ubicación en Google Maps</a>{% endif %}
             </div>
-            <aside class="hotel-price">
-              <div class="price-main">{{ moneda }} {{ money(hotel.hotel_precio) }}</div>
-              <div class="price-caption">por persona · {{ passengers }} pasajero/s</div>
-              {% if financiacion_activa %}
+            <aside class="hotel-price{% if segundo_destino %} multi-destination-price{% endif %}">
+              {% if segundo_destino %}
+                <div class="price-main">{{ hotel.hotel_ingreso_formateado }}</div>
+                <div class="price-caption multi-hotel-caption">Ingreso al hotel de {{ hotel.hotel_destino }}</div>
+              {% else %}
+                <div class="price-main">{{ moneda }} {{ money(hotel.hotel_precio) }}</div>
+                <div class="price-caption">por persona · {{ passengers }} pasajero/s</div>
+              {% endif %}
+              {% if financiacion_activa and not segundo_destino %}
                 <div class="price-total">Total Paquete: <strong>{{ moneda }} {{ money(hotel.precio_total) }}</strong></div>
                 <div class="payment-box">
                   Reserva {{ moneda }} {{ money(hotel.precio_reserva) }}
@@ -373,6 +474,14 @@
           </div>
         </article>
         {% endfor %}
+        {% if segundo_destino and financiacion_activa and hoteles %}
+          {% set first_hotel = hoteles[0] %}
+          <div class="multi-finance-box">
+            <span class="multi-finance-label">Precio Total Paquete:</span>
+            <span class="multi-finance-amount">{{ moneda }} {{ money(precio_total_paquete) }}</span>
+            <span class="multi-finance-caption">por persona</span>
+          </div>
+        {% endif %}
       </section>
 
       <div class="finance-page-gap"></div>

@@ -1,7 +1,10 @@
 const STORAGE_KEY = "felizviaje_form";
-const API_ENDPOINT = window.location.protocol === "http:" || window.location.protocol === "https:"
-  ? "/api/cotizacion/pdf"
-  : "http://localhost:8000/api/cotizacion/pdf";
+const LOCAL_BACKEND_ORIGIN = "http://localhost:8000";
+const isLocalDevelopmentServer = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
+  && window.location.port !== "8000";
+const API_ENDPOINT = isLocalDevelopmentServer
+  ? `${LOCAL_BACKEND_ORIGIN}/api/cotizacion/pdf`
+  : "/api/cotizacion/pdf";
 
 document.addEventListener("DOMContentLoaded", () => {
   const elements = getElements();
@@ -15,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupAutosave(elements.form);
   setupTripDateMinimums(elements.form);
   setupRealtimeValidation(elements.form);
+  setupRequiredFieldAttention(elements.form);
   setupMultipleDestination(elements.form);
   setupActions(elements);
   if (window.lucide) lucide.createIcons();
@@ -69,6 +73,7 @@ function addHotelBlock(container, values = null) {
   const multipleDestinationActive = document.getElementById("destinoMultipleBtn")?.classList.contains("active");
   newBlock.querySelector(".multi-hotel-row")?.toggleAttribute("hidden", !multipleDestinationActive);
   container.appendChild(newBlock);
+  syncHotelEntryMinimum(newBlock, multipleDestinationActive);
   updateHotelBlockLabels(container);
   return newBlock;
 }
@@ -96,6 +101,7 @@ function setupActions(elements) {
   generateBtn.addEventListener("click", async () => {
     // Abrir todas las secciones para que las alertas del navegador sean visibles
     form.querySelectorAll("details").forEach((d) => (d.open = true));
+    form.dataset.validationAttempted = "true";
     if (!form.reportValidity()) {
       alert("Por favor, revisá los campos obligatorios del formulario.");
       return;
@@ -123,7 +129,7 @@ function setupActions(elements) {
       window.setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
       console.error("Error al generar PDF:", error);
-      const backendAddress = window.location.protocol === "file:" ? "http://localhost:8000" : window.location.origin;
+      const backendAddress = isLocalDevelopmentServer ? LOCAL_BACKEND_ORIGIN : window.location.origin;
       alert("No se pudo generar el PDF.\n" + error.message + "\n\nVerificá el backend en " + backendAddress + ".");
     } finally {
       generateBtn.disabled = false;
@@ -132,6 +138,8 @@ function setupActions(elements) {
   });
   clearBtn.addEventListener("click", () => {
     form.reset();
+    delete form.dataset.validationAttempted;
+    form.querySelectorAll(".required-attention").forEach((field) => field.classList.remove("required-attention"));
     resetHotelBlocks(form);
     clearStorage();
     setQuoteDateToToday(form);
@@ -211,6 +219,14 @@ function setupTripDateMinimums(form) {
 }
 
 function applyMinDate(input, minDate) { if (!input) return; input.min = minDate; if (minDate && input.value && input.value < minDate) input.value = ""; }
+function syncHotelEntryMinimum(scope, enabled) {
+  const form = scope.matches?.("form") ? scope : scope.closest("form");
+  const departureDate = form?.querySelector('[name="fecha_salida"]');
+  const minimum = enabled && isFullDate(departureDate?.value) ? departureDate.value : "";
+  scope.querySelectorAll?.('[data-hotel-field="hotel_ingreso_primer_destino"]').forEach((field) => {
+    applyMinDate(field, minimum);
+  });
+}
 function setupRealtimeValidation(form) {
   ["fecha_salida", "fecha_vuelo_salida", "fecha_vuelo_regreso", "fecha_cotizacion"].forEach((name) => {
     const input = form.querySelector('[name="' + name + '"]');
@@ -221,11 +237,35 @@ function setupRealtimeValidation(form) {
   });
 }
 
+function setupRequiredFieldAttention(form) {
+  const updateAttention = (field) => {
+    if (!field.matches(":required") || form.dataset.validationAttempted !== "true") return;
+    field.closest(".field")?.classList.toggle("required-attention", !field.validity.valid);
+  };
+
+  form.addEventListener("invalid", (event) => {
+    if (event.target instanceof HTMLElement) updateAttention(event.target);
+  }, true);
+  form.addEventListener("input", (event) => {
+    if (!(event.target instanceof HTMLElement) || !event.target.matches("input, select, textarea")) return;
+    const container = event.target.closest(".field");
+    if (container && (!event.target.matches(":required") || event.target.validity.valid)) {
+      container.classList.remove("required-attention");
+    }
+  });
+  form.addEventListener("reset", () => {
+    delete form.dataset.validationAttempted;
+    form.querySelectorAll(".required-attention").forEach((field) => field.classList.remove("required-attention"));
+  });
+}
+
 function setupMultipleDestination(form) {
   const btn = form.querySelector("#destinoMultipleBtn");
   const wrap = form.querySelector("#secondDestinationWrap");
   const input = form.querySelector("#segundo_destino");
-  if (!btn || !wrap || !input) return;
+  const packagePriceInput = form.querySelector("#precio_total_paquete");
+  const packagePriceField = packagePriceInput?.closest(".field");
+  if (!btn || !wrap || !input || !packagePriceInput || !packagePriceField) return;
 
   const setHotelPriceInputsDisabled = (disabled) => {
     form.querySelectorAll('[data-hotel-field="hotel_precio"]').forEach((field) => {
@@ -247,6 +287,7 @@ function setupMultipleDestination(form) {
 
   const setHotelMultipleFieldsVisible = (visible) => {
     form.querySelectorAll(".multi-hotel-row").forEach((row) => row.toggleAttribute("hidden", !visible));
+    syncHotelEntryMinimum(form, visible);
   };
 
   const setOpen = (open) => {
@@ -255,10 +296,39 @@ function setupMultipleDestination(form) {
     btn.setAttribute("aria-expanded", String(open));
     btn.classList.toggle("active", open);
     btn.textContent = open ? "Destino multiple activo" : "Destino multiple";
+    input.required = open;
+    input.setAttribute("aria-required", String(open));
+    packagePriceInput.required = open;
+    packagePriceInput.setAttribute("aria-required", String(open));
+    if (form.dataset.validationAttempted === "true") {
+      packagePriceField.classList.toggle("required-attention", open && !packagePriceInput.value.trim());
+    } else {
+      packagePriceField.classList.remove("required-attention");
+    }
+    if (!open) {
+      input.value = "";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
     setHotelPriceInputsDisabled(open);
     setHotelMultipleFieldsVisible(open);
     if (open) input.focus();
   };
+
+  const departureDate = form.querySelector('[name="fecha_salida"]');
+  departureDate?.addEventListener("input", () => syncHotelEntryMinimum(form, !wrap.hidden));
+  departureDate?.addEventListener("change", () => syncHotelEntryMinimum(form, !wrap.hidden));
+
+  packagePriceInput.addEventListener("input", () => {
+    if (form.dataset.validationAttempted === "true") {
+      packagePriceField.classList.toggle("required-attention", !packagePriceInput.value.trim());
+    } else {
+      packagePriceField.classList.remove("required-attention");
+    }
+  });
+  packagePriceInput.addEventListener("invalid", () => {
+    if (wrap.hidden) return;
+    packagePriceField.classList.add("required-attention");
+  });
 
   form.querySelectorAll('[data-hotel-field="hotel_precio"]').forEach((field) => {
     if (!field.dataset.originalValue) {
